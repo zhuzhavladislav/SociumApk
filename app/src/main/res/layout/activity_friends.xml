@@ -5,7 +5,7 @@
     android:id="@+id/DrawerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FindFriendActivity"
+    tools:context=".FriendsActivity"
     android:background="@color/color"
     androidStatusBarBackground="white"
     >
@@ -62,16 +62,17 @@
             android:id="@+id/bottom_navigation"
             android:layout_width="match_parent"
             android:layout_height="46dp"
+            app:itemIconSize="30dp"
             android:layout_alignParentBottom="true"
             android:layout_gravity="bottom|end"
             android:background="@color/white"
-            android:theme="@style/Widget.BottomNavigationView"
-            app:itemIconSize="30dp"
+
             app:labelVisibilityMode="labeled"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:menu="@layout/bottom_navigation" />
+            app:menu="@layout/bottom_navigation"
+            android:theme="@style/Widget.BottomNavigationView"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

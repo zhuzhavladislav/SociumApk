@@ -1,6 +1,6 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
-    <style name="Theme.Socium" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="Theme.MsgGO" parent="Theme.MaterialComponents.Light.NoActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/colorAccent2</item>
         <item name="colorPrimaryVariant">@color/colorAccent</item>
@@ -10,12 +10,13 @@
         <!-- Status bar color. -->
         <item name="android:windowLightStatusBar" tools:targetApi="m">true</item>
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorOnPrimary</item>
-        <!-- Customize your theme here. -->
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+    <!-- Customize your theme here. -->
         <item name="buttonStyle">@style/newButtonStyle</item>
     </style>
 
     <style name="newButtonStyle" parent="Widget.AppCompat.Button">
-        <item name="android:background">@drawable/gradientbutton</item>
+        <item name="android:background">@drawable/btn_gradient</item>
     </style>
 
     <style name="Widget.BottomNavigationView"

@@ -101,14 +101,15 @@ public class ProfileActivity2 extends AppCompatActivity {
 
 
         //Фотку менять пока что нельзя, меняется url, соответственно в постах пропадает старая фотка
-        //profileImageView.setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View v) {
+        profileImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(ProfileActivity2.this, "На данный момент фотографию сменить нельзя", Toast.LENGTH_SHORT).show();
         //        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         //        intent.setType("image/*");
         //        startActivityForResult(intent, REQUEST_CODE);
-        //    }
-        //});
+            }
+        });
 
         btnUpdate.setOnClickListener(new View.OnClickListener() {
             @Override

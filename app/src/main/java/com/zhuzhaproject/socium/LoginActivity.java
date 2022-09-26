@@ -70,14 +70,15 @@ public class LoginActivity extends AppCompatActivity {
             mLoadingBar.setMessage("Пожалуйста подождите");
             mLoadingBar.setCanceledOnTouchOutside(false);
             mLoadingBar.show();
-            mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful())
                     {
                         mLoadingBar.dismiss();
                         Toast.makeText(LoginActivity.this,"Вы успешно вошли", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(LoginActivity.this, SetupActivity.class);
+
+                        Intent intent = new Intent(LoginActivity.this, SplashActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
                         finish();

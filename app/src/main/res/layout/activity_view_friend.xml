@@ -5,16 +5,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".ProfileActivity">
+    tools:context=".ViewFriendActivity">
 
     <include
         android:id="@+id/app_bar"
-        layout="@layout/main_appbar2"
-        android:visibility="visible" />
+        layout="@layout/main_appbar2" />
 
     <androidx.cardview.widget.CardView
         app:cardElevation="0dp"
-        android:id="@+id/cardView2"
+        android:id="@+id/CardView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_margin="0dp"
@@ -49,7 +48,7 @@
                 android:layout_height="85dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="13dp"
-                android:src="@drawable/profile"
+                android:src="@drawable/profile2"
                 app:civ_border_width="0dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -75,7 +74,7 @@
                 android:layout_height="0.5dp"
                 android:layout_marginTop="15dp"
                 android:background="#e9eaec"
-                app:layout_constraintEnd_toEndOf="@+id/btnMsg"
+                app:layout_constraintEnd_toEndOf="@+id/outputStatus"
                 app:layout_constraintStart_toStartOf="@+id/btnMsg"
                 app:layout_constraintTop_toBottomOf="@+id/btnMsg" />
 
@@ -105,15 +104,50 @@
                 android:layout_width="0dp"
                 android:layout_height="37dp"
                 android:layout_marginTop="13dp"
+                android:layout_marginEnd="195dp"
+                android:background="@drawable/btn_blue"
+                android:fontFamily="@font/sf_pro_text_regular"
+                android:text="Сообщение"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                app:layout_constraintEnd_toEndOf="@+id/outputStatus"
+                app:layout_constraintStart_toStartOf="@+id/profile_image"
+                app:layout_constraintTop_toBottomOf="@+id/profile_image" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnDecline"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="37dp"
+                android:layout_marginStart="10dp"
                 android:background="@drawable/btn_grey"
                 android:fontFamily="@font/sf_pro_text_regular"
-                android:text="Редактировать"
+                android:text="Отменить заявку"
                 android:textAllCaps="false"
                 android:textColor="@color/colorAccent2"
                 android:textSize="17sp"
-                app:layout_constraintEnd_toEndOf="@+id/outputUsername"
-                app:layout_constraintStart_toStartOf="@+id/profile_image"
-                app:layout_constraintTop_toBottomOf="@+id/profile_image" />
+                app:layout_constraintBottom_toBottomOf="@+id/btnMsg"
+                app:layout_constraintEnd_toEndOf="@+id/outputStatus"
+                app:layout_constraintStart_toEndOf="@+id/btnMsg"
+                app:layout_constraintTop_toTopOf="@+id/btnMsg" />
+
+            <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/btnPerform"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="0dp"
+                android:layout_height="37dp"
+                android:layout_marginStart="10dp"
+                android:background="@drawable/btn_blue"
+                android:fontFamily="@font/sf_pro_text_regular"
+                android:text="Добавить в друзья"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="17sp"
+                app:layout_constraintBottom_toBottomOf="@+id/btnMsg"
+                app:layout_constraintEnd_toEndOf="@+id/outputStatus"
+                app:layout_constraintStart_toEndOf="@+id/btnMsg"
+                app:layout_constraintTop_toTopOf="@+id/btnMsg" />
 
             <ImageView
                 android:id="@+id/imageView2"
@@ -133,7 +167,7 @@
                 android:text="Место проживания"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="@+id/imageView2"
-                app:layout_constraintEnd_toEndOf="@+id/btnMsg"
+                app:layout_constraintEnd_toEndOf="@+id/view2"
                 app:layout_constraintStart_toEndOf="@+id/imageView2"
                 app:layout_constraintTop_toTopOf="@+id/imageView2" />
 
@@ -183,7 +217,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/view3" />
 
             <TextView
-                android:id="@+id/friendCounter"
+                android:id="@+id/friendCounter2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="9dp"
@@ -207,7 +241,6 @@
         android:layout_gravity="bottom|end"
         android:background="@color/white"
         android:theme="@style/Widget.BottomNavigationView"
-        android:visibility="visible"
         app:itemIconSize="30dp"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -218,7 +251,7 @@
     </com.google.android.material.bottomnavigation.BottomNavigationView>
 
     <View
-        android:id="@+id/view5"
+        android:id="@+id/view6"
         android:layout_width="0dp"
         android:layout_height="0.5dp"
         android:layout_marginStart="16dp"

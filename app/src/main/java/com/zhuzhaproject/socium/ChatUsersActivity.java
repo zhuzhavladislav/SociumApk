@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.SearchView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -28,22 +29,23 @@ import com.squareup.picasso.Picasso;
 
 import com.zhuzhaproject.socium.Utils.Users;
 
-public class FindFriendActivity extends AppCompatActivity {
+public class ChatUsersActivity extends AppCompatActivity {
     Toolbar toolbar;
 
-    FirebaseRecyclerOptions<Users>options;
-    FirebaseRecyclerAdapter<Users, FindFriendViewHolder>adapter;
+    FirebaseRecyclerOptions<Users> options;
+    FirebaseRecyclerAdapter<Users, FindFriendViewHolder> adapter;
 
-    DatabaseReference mUserRef;
+    DatabaseReference mRef,msgRef;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
     RecyclerView recyclerView;
+    String userID;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_find_friend);
+        setContentView(R.layout.activity_chat_users);
 
         SearchView searchView = (SearchView) findViewById(R.id.searchView2);
 
@@ -53,9 +55,13 @@ public class FindFriendActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        mUserRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        mRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        msgRef = FirebaseDatabase.getInstance().getReference().child("Message");
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
+
+        userID = getIntent().getStringExtra("userKey");
+        Toast.makeText(this, ""+userID, Toast.LENGTH_SHORT).show();
 
         //changing statusbar color
         if (android.os.Build.VERSION.SDK_INT >= 21) {
@@ -71,7 +77,7 @@ public class FindFriendActivity extends AppCompatActivity {
         // нижняя навигация
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         // выбранный элемент в нижнем меню
-        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+        bottomNavigationView.setSelectedItemId(R.id.nav_chat);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -83,8 +89,6 @@ public class FindFriendActivity extends AppCompatActivity {
                         overridePendingTransition(0,0);
                         return false;
                     case R.id.nav_chat:
-                        startActivity(new Intent(getApplicationContext()
-                                , ChatUsersActivity.class));
                         overridePendingTransition(0,0);
                         return false;
                     case R.id.nav_friends:
@@ -117,7 +121,13 @@ public class FindFriendActivity extends AppCompatActivity {
 
 
     private void LoadUsers(String s) {
-        Query query= mUserRef.orderByChild("username").startAt(s).endAt(s+"\uf8ff");
+
+        //test
+        //Query query= mRef.orderByChild(msgRef.child(mUser.getUid()).child(userID).toString()).startAt(s).endAt(s+"\uf8ff");
+
+        //correct
+        Query query= mRef.orderByChild("username").startAt(s).endAt(s+"\uf8ff");
+
         options = new FirebaseRecyclerOptions.Builder<Users>().setQuery(query, Users.class).build();
         adapter = new FirebaseRecyclerAdapter<Users, FindFriendViewHolder>(options) {
             @Override
@@ -135,8 +145,8 @@ public class FindFriendActivity extends AppCompatActivity {
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(getApplicationContext(), ViewFriendActivity.class);
-                        intent.putExtra("userKey",getRef(position).getKey().toString());
+                        Intent intent = new Intent(getApplicationContext(), ChatActivity.class);
+                        intent.putExtra("OtherUserID",getRef(position).getKey().toString());
                         startActivity(intent);
                     }
                 });
@@ -155,7 +165,4 @@ public class FindFriendActivity extends AppCompatActivity {
         adapter.startListening();
         recyclerView.setAdapter(adapter);
     }
-
-
-
 }

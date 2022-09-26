@@ -26,15 +26,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.squareup.picasso.Picasso;
 
-import com.zhuzhaproject.socium.Utils.Users;
+import com.zhuzhaproject.socium.Utils.Friends;
 
-public class FindFriendActivity extends AppCompatActivity {
+public class FriendsActivity extends AppCompatActivity {
     Toolbar toolbar;
 
-    FirebaseRecyclerOptions<Users>options;
-    FirebaseRecyclerAdapter<Users, FindFriendViewHolder>adapter;
+    FirebaseRecyclerOptions<Friends>options;
+    FirebaseRecyclerAdapter<Friends, ViewFriendViewHolder>adapter;
 
-    DatabaseReference mUserRef;
+    DatabaseReference friendRef;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
     RecyclerView recyclerView;
@@ -43,7 +43,7 @@ public class FindFriendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_find_friend);
+        setContentView(R.layout.activity_friends);
 
         SearchView searchView = (SearchView) findViewById(R.id.searchView2);
 
@@ -53,7 +53,7 @@ public class FindFriendActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        mUserRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        friendRef = FirebaseDatabase.getInstance().getReference().child("Friends");
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
 
@@ -71,7 +71,7 @@ public class FindFriendActivity extends AppCompatActivity {
         // нижняя навигация
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         // выбранный элемент в нижнем меню
-        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+        bottomNavigationView.setSelectedItemId(R.id.nav_friends);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -88,8 +88,6 @@ public class FindFriendActivity extends AppCompatActivity {
                         overridePendingTransition(0,0);
                         return false;
                     case R.id.nav_friends:
-                        startActivity(new Intent(getApplicationContext()
-                                , FriendsActivity.class));
                         overridePendingTransition(0,0);
                         return false;
                 }
@@ -117,45 +115,44 @@ public class FindFriendActivity extends AppCompatActivity {
 
 
     private void LoadUsers(String s) {
-        Query query= mUserRef.orderByChild("username").startAt(s).endAt(s+"\uf8ff");
-        options = new FirebaseRecyclerOptions.Builder<Users>().setQuery(query, Users.class).build();
-        adapter = new FirebaseRecyclerAdapter<Users, FindFriendViewHolder>(options) {
+        Query query = friendRef.child(mUser.getUid()).orderByChild("username").startAt(s).endAt(s+"\uf8ff");
+        options = new FirebaseRecyclerOptions.Builder<Friends>().setQuery(query, Friends.class).build();
+        adapter = new FirebaseRecyclerAdapter<Friends, ViewFriendViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull FindFriendViewHolder holder, int position, @NonNull Users model) {
-                if (mUser.getUid().equals(getRef(position).getKey().toString()))
-                {
-                    holder.itemView.setVisibility(View.GONE);
-                    holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0,0));
+            protected void onBindViewHolder(@NonNull ViewFriendViewHolder holder, int position, @NonNull Friends model) {
+                Picasso.get().load(model.getProfileImageUrl()).into(holder.profileImageUrl);
+                holder.username.setText(model.getUsername());
+                holder.profession.setText(model.getProfession());
 
-                }else{
-                    Picasso.get().load(model.getProfileImage()).into(holder.profileImage);
-                    holder.username.setText(model.getUsername());
-                    holder.profession.setText(model.getProfession());
-                }
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(getApplicationContext(), ViewFriendActivity.class);
-                        intent.putExtra("userKey",getRef(position).getKey().toString());
-                        startActivity(intent);
+                        if (mUser.getUid().equals(getRef(position).getKey().toString()))
+                        {
+                            Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);;
+                            startActivity(intent);
+                        }else {
+                            Intent intent = new Intent(getApplicationContext(), ViewFriendActivity.class);
+                            intent.putExtra("userKey", getRef(position).getKey().toString());
+                            startActivity(intent);
+                        }
+
                     }
                 });
+
             }
 
             @NonNull
             @Override
-            public FindFriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public ViewFriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_friend, parent, false);
 
-                return new FindFriendViewHolder(view);
+                return new ViewFriendViewHolder(view);
                 //return null;
             }
         };
         adapter.startListening();
         recyclerView.setAdapter(adapter);
     }
-
-
-
 }

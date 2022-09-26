@@ -21,6 +21,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
     ImageView postImage, likeImage, commentsImage;
     Button likeButton;
     TextView username, timeAgo, postDesc, likeCounter, commentCounter;
+    View view3;
 
     public MyViewHolder(@NonNull View itemView) {
         super(itemView);
@@ -34,6 +35,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder {
         likeCounter=itemView.findViewById(R.id.likeCounter);
         commentCounter=itemView.findViewById(R.id.commentCounter);
         likeButton=itemView.findViewById(R.id.likeButton);
+        view3=itemView.findViewById(R.id.view3);
     }
 
     public void countLikes(String postKey, String uid, DatabaseReference likeRef) {
