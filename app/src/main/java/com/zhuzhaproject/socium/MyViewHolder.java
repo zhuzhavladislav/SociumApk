@@ -40,7 +40,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder{
     }
     public void setImage(String image){
         ImageView moment_image = (ImageView) itemView.findViewById(R.id.mom_image_item);
-        Picasso.get().load("com.google.android.gms.tasks.zzu@d68bf1b").into(moment_image);
+        Picasso.get().load(image).into(moment_image);
     }
     public void setText(String text){
         TextView text_tv = (TextView) itemView.findViewById(R.id.mom_text_item);

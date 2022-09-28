@@ -190,13 +190,11 @@ public class CreatePostActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             imageUri = data.getData();
-            System.out.println("|------------------------------| "+ imageUri);
             if (imageUri != null) {
                 startCrop(imageUri);
             }
         } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK) {
             imageUriResultCrop = UCrop.getOutput(data);
-            System.out.println("|------------------------------| "+ imageUriResultCrop);
             if (imageUriResultCrop != null) {
                 File image_file = new File(imageUriResultCrop.getPath());
                 try {
@@ -256,7 +254,7 @@ public class CreatePostActivity extends AppCompatActivity {
         DatabaseReference userpost_push = allPostsRef.push();
         final String push_id = userpost_push.getKey();
 
-        StorageReference posts_image_ref = mStorageref.child("Posts").child(Uid).child(push_id + ".jpg");
+        StorageReference posts_image_ref = mStorageref.child("Posts").child(Uid).child(push_id);
         String postDesc = inputPostDesc.getText().toString();
         if (imageUriResultCrop == null && postDesc.isEmpty()) {
             inputPostDesc.setError("Необходимо прикрепить изображение или написать описание");
@@ -303,53 +301,60 @@ public class CreatePostActivity extends AppCompatActivity {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 compressedImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                 image_data = baos.toByteArray();
-                System.out.println("HEEEEEEEEEEEEEEEEEREEEEEE " + posts_image_ref.getDownloadUrl().toString());
 
 
                 UploadTask uploadTask = posts_image_ref.putBytes(image_data);
-//                postImageRef.child(mUser.getUid() + strDate).putFile(image_data);
 
                 uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
-                    public void onComplete(Task<UploadTask.TaskSnapshot> task) {
-                        @SuppressWarnings("VisibleForTests") String download_url = posts_image_ref.getDownloadUrl().toString();
-                        final Map imageMap = new HashMap();
-                        imageMap.put("type", "image");
-                        imageMap.put("timestamp", ServerValue.TIMESTAMP);
-                        imageMap.put("by", Uid);
-                        imageMap.put("postDesc", postDesc);
-                        imageMap.put("image", download_url);
-                        imageMap.put("likes", 0);
-
-                        final Map timeBy = new HashMap();
-                        timeBy.put("timestamp", ServerValue.TIMESTAMP);
-                        timeBy.put("by", Uid);
-                        timeBy.put("liked", "false");
-
-                        allPostsRef.child(push_id).setValue(imageMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                for (String id : friends_IdList) {
-                                    postsToShowRef.child(id).child(push_id).setValue(timeBy).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            usersPostRef.child(push_id).setValue(timeBy).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void aVoid) {
-                                                    Toast.makeText(CreatePostActivity.this, "Упешно опубликовано", Toast.LENGTH_SHORT).show();
-                                                    mLoadingBar.dismiss();
-                                                    finish();
-
-                                                }
-                                            });
-
-                                        }
-                                    });
-
-                                }
-
-                            }
-                        });
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        System.out.println(mStorageref.child("Posts").child(Uid).child(push_id));
+                        System.out.println(mStorageref.child("Posts").child(Uid).child(push_id).getDownloadUrl());
+                        System.out.println(mStorageref.child("Posts").child(Uid).child(push_id).getStorage());
+                        System.out.println("push_id: " + push_id);
+                        System.out.println("posts_image_ref: " + posts_image_ref);
+                        System.out.println("posts_image_ref.getStorage(): " + posts_image_ref.getStorage());
+                        System.out.println("posts_image_ref.getStorage().toString(): " + posts_image_ref.getStorage().toString());
+                        System.out.println("posts_image_ref.getDownloadUrl().toString(): " + posts_image_ref.getDownloadUrl().toString());
+                        System.out.println("task.getResult().getStorage().getDownloadUrl().toString(): " + task.getResult().getStorage().getDownloadUrl().toString());
+                        String download_url = task.getResult().getStorage().getDownloadUrl().toString();
+//                        final Map imageMap = new HashMap();
+//                        imageMap.put("type", "image");
+//                        imageMap.put("timestamp", ServerValue.TIMESTAMP);
+//                        imageMap.put("by", Uid);
+//                        imageMap.put("postDesc", postDesc);
+//                        imageMap.put("image", download_url);
+//                        imageMap.put("likes", 0);
+//
+//                        final Map timeBy = new HashMap();
+//                        timeBy.put("timestamp", ServerValue.TIMESTAMP);
+//                        timeBy.put("by", Uid);
+//                        timeBy.put("liked", "false");
+//
+//                        allPostsRef.child(push_id).setValue(imageMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                for (String id : friends_IdList) {
+//                                    postsToShowRef.child(id).child(push_id).setValue(timeBy).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                        @Override
+//                                        public void onSuccess(Void aVoid) {
+//                                            usersPostRef.child(push_id).setValue(timeBy).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                                                @Override
+//                                                public void onSuccess(Void aVoid) {
+//                                                    Toast.makeText(CreatePostActivity.this, "Упешно опубликовано", Toast.LENGTH_SHORT).show();
+//                                                    mLoadingBar.dismiss();
+//                                                    finish();
+//
+//                                                }
+//                                            });
+//
+//                                        }
+//                                    });
+//
+//                                }
+//
+//                            }
+//                        });
                     }
                 });
 

@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference friendsRef;
     private DatabaseReference usersPostRef;
     private String Uid;
+    StorageReference Img;
 
     private ArrayList<String> friends_IdList;
     String profileImageUrlV, usernameV;
