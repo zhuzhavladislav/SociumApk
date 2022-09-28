@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "323211568209",
+    "firebase_url": "https://msggo-96e58-default-rtdb.firebaseio.com",
+    "project_id": "msggo-96e58",
+    "storage_bucket": "msggo-96e58.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:323211568209:android:a0089e6f50b46edb870470",
+        "android_client_info": {
+          "package_name": "com.zhuzhaproject.socium"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "323211568209-ik7rh79belvoe1g6agn6fb7dav658ar2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9uv_JsDque-d3KdO8jcspYyfqOohYCIU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "323211568209-ik7rh79belvoe1g6agn6fb7dav658ar2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:323211568209:android:e581bf30623a0286870470",
+        "android_client_info": {
+          "package_name": "ru.zhuzhaproject.msggo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "323211568209-ik7rh79belvoe1g6agn6fb7dav658ar2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9uv_JsDque-d3KdO8jcspYyfqOohYCIU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "323211568209-ik7rh79belvoe1g6agn6fb7dav658ar2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

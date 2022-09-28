@@ -24,6 +24,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -130,12 +131,13 @@ public class SetupActivity extends AppCompatActivity {
                             @Override
                             public void onSuccess(Uri uri) {
                                 HashMap hashMap=new HashMap();
-                                hashMap.put("username",username);
-                                hashMap.put("city",city);
-                                hashMap.put("country",country);
-                                hashMap.put("profession",profession);
-                                hashMap.put("profileImage",uri.toString());
-                                hashMap.put("status","offline");
+                                hashMap.put("username", username);
+                                hashMap.put("status","Socium");
+                                hashMap.put("city", city);
+                                hashMap.put("country", country);
+                                hashMap.put("profession", profession);
+                                hashMap.put("profileImage", uri.toString());
+                                hashMap.put("device_token", FirebaseInstanceId.getInstance().getToken());
 
 
                                 mRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {

@@ -1,11 +1,5 @@
 package com.zhuzhaproject.socium;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,6 +11,12 @@ import android.view.WindowManager;
 import android.widget.SearchView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -26,7 +26,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.squareup.picasso.Picasso;
-
 import com.zhuzhaproject.socium.Utils.Users;
 
 public class ChatUsersActivity extends AppCompatActivity {
@@ -55,7 +54,7 @@ public class ChatUsersActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        mRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        mRef = FirebaseDatabase.getInstance().getReference().child("Friends");
         msgRef = FirebaseDatabase.getInstance().getReference().child("Message");
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
@@ -123,10 +122,10 @@ public class ChatUsersActivity extends AppCompatActivity {
     private void LoadUsers(String s) {
 
         //test
-        //Query query= mRef.orderByChild(msgRef.child(mUser.getUid()).child(userID).toString()).startAt(s).endAt(s+"\uf8ff");
+        Query query= mRef.child(mUser.getUid()).orderByChild("username").startAt(s).endAt(s+"\uf8ff");
 
         //correct
-        Query query= mRef.orderByChild("username").startAt(s).endAt(s+"\uf8ff");
+//        Query query= mRef.orderByChild("username").startAt(s).endAt(s+"\uf8ff");
 
         options = new FirebaseRecyclerOptions.Builder<Users>().setQuery(query, Users.class).build();
         adapter = new FirebaseRecyclerAdapter<Users, FindFriendViewHolder>(options) {
