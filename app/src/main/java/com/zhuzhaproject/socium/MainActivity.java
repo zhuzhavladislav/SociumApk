@@ -1,12 +1,12 @@
 package com.zhuzhaproject.socium;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +31,7 @@ import com.daimajia.androidanimations.library.YoYo;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -39,14 +40,11 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
-import com.zhuzhaproject.socium.Utils.Posts;
+import com.zhuzhaproject.socium.Utils.Moment;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.TimeZone;
+import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -55,7 +53,14 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
-    DatabaseReference mUserRef, postRef, likeRef;
+    private DatabaseReference postRef;
+    private DatabaseReference userRef;
+    private DatabaseReference allPostsRef;
+    private DatabaseReference friendsRef;
+    private DatabaseReference usersPostRef;
+    private String Uid;
+
+    private ArrayList<String> friends_IdList;
     String profileImageUrlV, usernameV;
 
     ImageButton addFriends;
@@ -68,18 +73,16 @@ public class MainActivity extends AppCompatActivity {
     Uri imageUri;
     ProgressDialog mLoadingBar;
     StorageReference postImageRef;
-    FirebaseRecyclerAdapter<Posts, MyViewHolder> adapter;
-    FirebaseRecyclerOptions<Posts> options;
+    FirebaseRecyclerAdapter<Moment, MyViewHolder> adapter;
+    FirebaseRecyclerOptions<Moment> options;
 
     RecyclerView recyclerView;
     CardView cardView;
     ShimmerFrameLayout shimmerFrameLayout;
 
-    LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-
     static int y;
 
-
+    @Nullable
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,26 +96,30 @@ public class MainActivity extends AppCompatActivity {
         btnCreatePost = findViewById(R.id.btnCreatePost);
         editIcon = findViewById(R.id.ic_edit);
 
-
+        cardView = findViewById(R.id.cardView);
+        shimmerFrameLayout = findViewById(R.id.shimmerFrameLayout);
         recyclerView = findViewById(R.id.recyclerView);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setReverseLayout(true);
-        layoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setVisibility(View.INVISIBLE);
 
-        cardView = findViewById(R.id.cardView);
-        shimmerFrameLayout = findViewById(R.id.shimmerFrameLayout);
-
+        friends_IdList = new ArrayList<String>();
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
-        mUserRef = FirebaseDatabase.getInstance().getReference().child("Users");
-        postRef = FirebaseDatabase.getInstance().getReference().child("Posts");
-        likeRef = FirebaseDatabase.getInstance().getReference().child("Likes");
-        postImageRef = FirebaseStorage.getInstance().getReference().child("PostImages");
-        postRef.keepSynced(true);
-        likeRef.keepSynced(true);
-        mUserRef.keepSynced(true);
+        Uid = mAuth.getCurrentUser().getUid();
+
+
+        postRef = FirebaseDatabase.getInstance().getReference().child("PostsToShow");
+        userRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        allPostsRef = FirebaseDatabase.getInstance().getReference().child("AllPosts");
+        usersPostRef = FirebaseDatabase.getInstance().getReference().child("UsersPost").child(Uid);
+        friendsRef = FirebaseDatabase.getInstance().getReference().child("Friends").child(Uid);
+
+        allPostsRef.keepSynced(true);
+        postRef.child(Uid).keepSynced(true);
+        userRef.keepSynced(true);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -271,68 +278,214 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void LoadPost() {
-        options = new FirebaseRecyclerOptions.Builder<Posts>().setQuery(postRef.orderByChild("datePost"), Posts.class).build();
-        adapter = new FirebaseRecyclerAdapter<Posts, MyViewHolder>(options) {
+        options = new FirebaseRecyclerOptions.Builder<Moment>().setQuery(postRef.child(Uid), Moment.class).build();
+        adapter = new FirebaseRecyclerAdapter<Moment, MyViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NonNull Posts model) {
-                final String postKey = getRef(position).getKey();
-                if (model.getPostDesc().equals("")) {
-                    holder.postDesc.setVisibility(View.GONE);
-                } else {
-                    holder.postDesc.setText(model.getPostDesc());
+            protected void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NonNull Moment model) {
+                final String By = model.getBy();
+                long timestamp = model.getTimestamp();
+                final String liked = model.getLiked();
+
+                GetTimeAgo gta = new GetTimeAgo();
+                final String momentposttime = gta.getTimeAgo(timestamp);
+                holder.setTime(momentposttime);
+
+                final String moment_id = getRef(position).getKey();
+
+                if(By.equals(Uid)){
+                    holder.mom_delete_view.setVisibility(View.VISIBLE);
+                }else{
+                    holder.mom_delete_view.setVisibility(View.GONE);
                 }
-                String timeAgo = calculateTimeAgo(model.getDatePost());
-                holder.timeAgo.setText(timeAgo);
-                holder.username.setText(model.getUsername());
-                Picasso.get().load(model.getUserProfileImageUrl()).into(holder.profileImage);
-                if (model.getPostImageUrl().equals("")) {
-                    holder.postImage.setVisibility(View.GONE);
-                    holder.view3.setVisibility(View.VISIBLE);
-                } else {
-                    Picasso.get().load(model.getPostImageUrl()).into(holder.postImage);
-                }
+
+                if(liked.equals("true"))
+                    holder.likes_but.setBackgroundResource(R.drawable.ic_like);
+                else
+                    holder.likes_but.setBackgroundResource(R.drawable.ic_like_pressed);
 
 
-                holder.countLikes(postKey, mUser.getUid(), likeRef);
-
-                holder.likeButton.setOnClickListener(new View.OnClickListener() {
+                holder.mom_delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        likeRef.child(postKey).child(mUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                if (snapshot.exists()) {
-                                    likeRef.child(postKey).child(mUser.getUid()).removeValue();
-                                    holder.likeImage.setImageResource(R.drawable.ic_like);
-                                    holder.likeImage.setColorFilter(Color.GRAY);
-                                    holder.likeCounter.setTextColor(Color.GRAY);
+                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                        alertDialogBuilder.setTitle("Confirm").setMessage("Are you sure you want to delete your post?").setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
 
-                                    YoYo.with(Techniques.BounceIn)
-                                            .duration(300)
-                                            .playOn(holder.likeImage);
-
-                                    //notifyDataSetChanged();
-                                } else {
-                                    likeRef.child(postKey).child(mUser.getUid()).setValue("like");
-                                    holder.likeImage.setImageResource(R.drawable.ic_like_pressed);
-                                    holder.likeImage.setColorFilter(Color.RED);
-                                    holder.likeCounter.setTextColor(Color.RED);
-
-                                    YoYo.with(Techniques.BounceIn)
-                                            .duration(300)
-                                            .playOn(holder.likeImage);
-
-                                    //notifyDataSetChanged();
+                                for(String id: friends_IdList){
+                                    postRef.child(id).child(moment_id).setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            usersPostRef.child(moment_id).setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                }
+                                            });
+                                        }
+                                    });
                                 }
-                            }
+                                allPostsRef.child(moment_id).setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(MainActivity.this, "Post Deleted", Toast.LENGTH_SHORT).show();
+                                        mLoadingBar.dismiss();
+                                    }
+                                });
 
+                            }
+                        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        }).show();
+
+                    }
+                });
+
+
+
+
+
+
+
+                allPostsRef.child(moment_id).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        int llikes;
+                        if(dataSnapshot.hasChild("likes"))
+                            llikes = Integer.valueOf(dataSnapshot.child("likes").getValue().toString());
+                        else
+                            llikes = 0;
+
+                        final int likes = llikes;
+                        holder.setLikes(likes);
+
+                        holder.likes_but.setOnClickListener(new View.OnClickListener() {
                             @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-                                Toast.makeText(MainActivity.this, "" + error.getMessage(), Toast.LENGTH_SHORT).show();
+                            public void onClick(View v) {
+
+                                if(liked.equals("false")){
+                                    postRef.child(Uid).child(moment_id).child("liked").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            allPostsRef.child(moment_id).child("likes").setValue(likes+1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Toast.makeText(MainActivity.this, "Liked", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                        }
+                                    });
+                                }else{
+                                    postRef.child(Uid).child(moment_id).child("liked").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            allPostsRef.child(moment_id).child("likes").setValue(likes-1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Toast.makeText(MainActivity.this, "Unliked", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                        }
+                                    });
+
+                                }
                             }
                         });
                     }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
                 });
+
+                allPostsRef.child(moment_id).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(final DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.child("type").getValue().toString().equals("text")){
+                            holder.setText(dataSnapshot.child("postDesc").getValue().toString());
+                            holder.imageView.setVisibility(View.GONE);
+                        }else {
+                            holder.imageView.setVisibility(View.VISIBLE);
+                            holder.setText(dataSnapshot.child("postDesc").getValue().toString());
+                            holder.setImage(dataSnapshot.child("image").getValue().toString());
+                        }
+                        if(dataSnapshot.child("postDesc").getValue().toString().equals("")){
+                            holder.textView.setVisibility(View.GONE);
+                        }else{
+                            holder.textView.setVisibility(View.VISIBLE);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+
+//                holder.comments_but.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        Intent commentIntent = new Intent(MainActivity.this,CommentsActivity.class);
+//                        commentIntent.putExtra("moment_id",moment_id);
+//                        commentIntent.putExtra("name",By);
+//                        commentIntent.putExtra("time",momentposttime);
+//                        startActivity(commentIntent);
+//                    }
+//                });
+
+                holder.profile_view.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent profIntent = new Intent(MainActivity.this,ProfileActivity.class);
+                        profIntent.putExtra("from_user_id",By);
+                        startActivity(profIntent);
+                    }
+                });
+
+
+
+
+
+
+                allPostsRef.child(moment_id).child("comments").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        holder.setCommentsCount(((int) dataSnapshot.getChildrenCount()));
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+
+
+
+
+                userRef.child(By).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        String username;
+                        username = dataSnapshot.child("username").getValue().toString();
+                        String profileImage = dataSnapshot.child("profileImage").getValue().toString();
+
+                        holder.setName(username);
+                        holder.setDp(profileImage,MainActivity.this);
+
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
             }
 
             @NonNull
@@ -346,21 +499,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
     }
 
-    private String calculateTimeAgo(String datePost) {
-        SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT-12:00"));
-        try {
-            long time = sdf.parse(datePost).getTime();
-            long now = System.currentTimeMillis();
-            CharSequence ago =
-                    DateUtils.getRelativeTimeSpanString(time, now, DateUtils.MINUTE_IN_MILLIS);
-            return ago + "";
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return "";
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -369,14 +507,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
         if (mUser == null) {
             SendUserToLoginActivity();
         } else {
-            mUserRef.child(mUser.getUid()).addValueEventListener(new ValueEventListener() {
+            userRef.child(mUser.getUid()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
