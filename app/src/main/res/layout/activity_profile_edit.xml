@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ProfileActivity2"
+    tools:context=".ProfileEditActivity"
     android:background="@color/color">
 
     <include
@@ -46,9 +46,9 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
                 android:layout_marginEnd="16dp"
-                android:clickable="false"
+                android:clickable="true"
                 android:ems="10"
-                android:enabled="false"
+                android:enabled="true"
                 android:hint="Имя и Фамилия"
                 android:inputType="textPersonName"
                 android:textColorHighlight="@color/colorAccent2"

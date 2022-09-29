@@ -1,8 +1,5 @@
 package com.zhuzhaproject.socium;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,11 +8,18 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -25,6 +29,7 @@ public class LoginActivity extends AppCompatActivity {
     TextView forgotPassword, createNewAccount;
     ProgressDialog mLoadingBar;
     FirebaseAuth mAuth;
+    private DatabaseReference userref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
         createNewAccount=findViewById(R.id.createNewAccount);
         mLoadingBar=new ProgressDialog(this);
         mAuth=FirebaseAuth.getInstance();
+        userref = FirebaseDatabase.getInstance().getReference().child("Users");
 
         createNewAccount.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,12 +82,21 @@ public class LoginActivity extends AppCompatActivity {
                     if(task.isSuccessful())
                     {
                         mLoadingBar.dismiss();
-                        Toast.makeText(LoginActivity.this,"Вы успешно вошли", Toast.LENGTH_SHORT).show();
+                        String Uid = mAuth.getCurrentUser().getUid();
+                        String token = FirebaseInstanceId.getInstance().getToken();
+                        userref.child(Uid).child("device_token").setValue(token).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(LoginActivity.this,"Вы успешно вошли", Toast.LENGTH_SHORT).show();
 
-                        Intent intent = new Intent(LoginActivity.this, SplashActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        finish();
+                                Intent intent = new Intent(LoginActivity.this, SplashActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                                finish();
+                            }
+                        });
+
+
                     }else
                     {
                         mLoadingBar.dismiss();

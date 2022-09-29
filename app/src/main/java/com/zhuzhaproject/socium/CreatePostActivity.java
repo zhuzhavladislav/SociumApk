@@ -64,6 +64,8 @@ public class CreatePostActivity extends AppCompatActivity {
     private StorageReference mStorageref;
 
     private ArrayList<String> friends_IdList;
+    //public String imageUrl;
+
 
     CircleImageView profileImage;
     ImageView addImagePost, sendImagePost;
@@ -73,6 +75,7 @@ public class CreatePostActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 101;
     private final String SAMPLE_CROPPED_IMG_NAME = "SampleCropImg";
     Uri imageUri, imageUriResultCrop;
+
     ProgressDialog mLoadingBar;
     TextView outputUsername;
 
@@ -94,6 +97,7 @@ public class CreatePostActivity extends AppCompatActivity {
         Uid = mAuth.getCurrentUser().getUid();
 
         friends_IdList = new ArrayList<String>();
+        //imageUrl = new String();
 
         allPostsRef = FirebaseDatabase.getInstance().getReference().child("AllPosts");
         postsToShowRef = FirebaseDatabase.getInstance().getReference().child("PostsToShow");
@@ -198,11 +202,7 @@ public class CreatePostActivity extends AppCompatActivity {
             if (imageUriResultCrop != null) {
                 File image_file = new File(imageUriResultCrop.getPath());
                 try {
-                    compressedImageBitmap = new Compressor(this)
-                            .setMaxHeight(800)
-                            .setMaxWidth(800)
-                            .setQuality(2)
-                            .compressToBitmap(image_file);
+                    compressedImageBitmap = new Compressor(this).setMaxHeight(800).setMaxWidth(800).setQuality(2).compressToBitmap(image_file);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -227,7 +227,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
     private UCrop.Options getCropOptions() {
         UCrop.Options options = new UCrop.Options();
-        options.setCompressionQuality(70);
+        options.setCompressionQuality(100);
 
         //CompressType
         //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
@@ -284,7 +284,6 @@ public class CreatePostActivity extends AppCompatActivity {
                                     usersPostRef.child(push_id).setValue(timeby2).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-
                                             Toast.makeText(CreatePostActivity.this, "Успешно опубликовано", Toast.LENGTH_SHORT).show();
                                             mLoadingBar.dismiss();
                                             finish();
@@ -308,57 +307,56 @@ public class CreatePostActivity extends AppCompatActivity {
                 uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        System.out.println(mStorageref.child("Posts").child(Uid).child(push_id));
-                        System.out.println(mStorageref.child("Posts").child(Uid).child(push_id).getDownloadUrl());
-                        System.out.println(mStorageref.child("Posts").child(Uid).child(push_id).getStorage());
-                        System.out.println("push_id: " + push_id);
-                        System.out.println("posts_image_ref: " + posts_image_ref);
-                        System.out.println("posts_image_ref.getStorage(): " + posts_image_ref.getStorage());
-                        System.out.println("posts_image_ref.getStorage().toString(): " + posts_image_ref.getStorage().toString());
-                        System.out.println("posts_image_ref.getDownloadUrl().toString(): " + posts_image_ref.getDownloadUrl().toString());
-                        System.out.println("task.getResult().getStorage().getDownloadUrl().toString(): " + task.getResult().getStorage().getDownloadUrl().toString());
-                        String download_url = task.getResult().getStorage().getDownloadUrl().toString();
-//                        final Map imageMap = new HashMap();
-//                        imageMap.put("type", "image");
-//                        imageMap.put("timestamp", ServerValue.TIMESTAMP);
-//                        imageMap.put("by", Uid);
-//                        imageMap.put("postDesc", postDesc);
-//                        imageMap.put("image", download_url);
-//                        imageMap.put("likes", 0);
-//
-//                        final Map timeBy = new HashMap();
-//                        timeBy.put("timestamp", ServerValue.TIMESTAMP);
-//                        timeBy.put("by", Uid);
-//                        timeBy.put("liked", "false");
-//
-//                        allPostsRef.child(push_id).setValue(imageMap).addOnSuccessListener(new OnSuccessListener<Void>() {
-//                            @Override
-//                            public void onSuccess(Void aVoid) {
-//                                for (String id : friends_IdList) {
-//                                    postsToShowRef.child(id).child(push_id).setValue(timeBy).addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                        @Override
-//                                        public void onSuccess(Void aVoid) {
-//                                            usersPostRef.child(push_id).setValue(timeBy).addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                                @Override
-//                                                public void onSuccess(Void aVoid) {
-//                                                    Toast.makeText(CreatePostActivity.this, "Упешно опубликовано", Toast.LENGTH_SHORT).show();
-//                                                    mLoadingBar.dismiss();
-//                                                    finish();
-//
-//                                                }
-//                                            });
-//
-//                                        }
-//                                    });
-//
-//                                }
-//
-//                            }
-//                        });
+                        if (task.isSuccessful()) {
+                            mStorageref.child("Posts").child(Uid).child(push_id).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    final Map imageMap = new HashMap();
+                                    imageMap.put("type", "image");
+                                    imageMap.put("timestamp", ServerValue.TIMESTAMP);
+                                    imageMap.put("by", Uid);
+                                    imageMap.put("postDesc", postDesc);
+                                    imageMap.put("image", uri.toString());
+                                    imageMap.put("likes", 0);
+
+                                    final Map timeBy = new HashMap();
+                                    timeBy.put("timestamp", ServerValue.TIMESTAMP);
+                                    timeBy.put("by", Uid);
+                                    timeBy.put("liked", "false");
+
+                                    allPostsRef.child(push_id).setValue(imageMap).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            for (String id : friends_IdList) {
+                                                postsToShowRef.child(id).child(push_id).setValue(timeBy).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        usersPostRef.child(push_id).setValue(timeBy).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                Toast.makeText(CreatePostActivity.this, "Упешно опубликовано", Toast.LENGTH_SHORT).show();
+                                                                mLoadingBar.dismiss();
+                                                                finish();
+
+                                                            }
+                                                        });
+
+                                                    }
+                                                });
+
+                                            }
+
+                                        }
+                                    });
+
+                                }
+                            });
+                        } else {
+                            mLoadingBar.dismiss();
+                            Toast.makeText(CreatePostActivity.this, "" + task.getException().toString(), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
-
-
             }
         }
 

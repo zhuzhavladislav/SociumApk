@@ -46,7 +46,7 @@ public class ProfileActivity extends AppCompatActivity {
     Button btnEdit;
 
     FirebaseRecyclerOptions<Friends> options;
-    FirebaseRecyclerAdapter<Friends, ViewFriendViewHolder> adapter;
+    FirebaseRecyclerAdapter<Friends, ViewOtherProfileViewHolder> adapter;
 
     DatabaseReference mUserRef, friendRef;
     FirebaseAuth mAuth;
@@ -156,7 +156,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getApplicationContext()
-                        , ProfileActivity2.class));
+                        , ProfileEditActivity.class));
             }
         });
 
@@ -199,9 +199,9 @@ public class ProfileActivity extends AppCompatActivity {
     private void LoadUsers(String s) {
         Query query = friendRef.child(mUser.getUid()).orderByChild("username");
         options = new FirebaseRecyclerOptions.Builder<Friends>().setQuery(query, Friends.class).build();
-        adapter = new FirebaseRecyclerAdapter<Friends, ViewFriendViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<Friends, ViewOtherProfileViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull ViewFriendViewHolder holder, int position, @NonNull Friends model) {
+            protected void onBindViewHolder(@NonNull ViewOtherProfileViewHolder holder, int position, @NonNull Friends model) {
                 Picasso.get().load(model.getProfileImageUrl()).into(holder.profileImageUrl);
                 holder.username.setText(model.getUsername());
 
@@ -213,7 +213,7 @@ public class ProfileActivity extends AppCompatActivity {
                             Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);;
                             startActivity(intent);
                         }else {
-                            Intent intent = new Intent(getApplicationContext(), ViewFriendActivity.class);
+                            Intent intent = new Intent(getApplicationContext(), ViewOtherProfileActivity.class);
                             intent.putExtra("userKey", getRef(position).getKey().toString());
                             startActivity(intent);
                         }
@@ -225,11 +225,11 @@ public class ProfileActivity extends AppCompatActivity {
 
             @NonNull
             @Override
-            public ViewFriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public ViewOtherProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_friend2, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_friend, parent, false);
 
-                return new ViewFriendViewHolder(view);
+                return new ViewOtherProfileViewHolder(view);
                 //return null;
             }
         };

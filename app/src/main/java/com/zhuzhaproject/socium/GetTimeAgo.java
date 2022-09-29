@@ -40,19 +40,19 @@ public class GetTimeAgo {
         // TODO: localize
         final long diff = now - time;
         if (diff < MINUTE_MILLIS) {
-            return "just now";
+            return "Только что";
         } else if (diff < 2 * MINUTE_MILLIS) {
-            return "a minute ago";
+            return "Минуту назад";
         } else if (diff < 50 * MINUTE_MILLIS) {
-            return diff / MINUTE_MILLIS + " minutes ago";
+            return diff / MINUTE_MILLIS + "м. назад";
         } else if (diff < 90 * MINUTE_MILLIS) {
-            return "an hour ago";
+            return "Час назад";
         } else if (diff < 24 * HOUR_MILLIS) {
-            return diff / HOUR_MILLIS + " hours ago";
+            return diff / HOUR_MILLIS + "ч. назад";
         } else if (diff < 48 * HOUR_MILLIS) {
-            return "yesterday";
+            return "Вчера";
         } else {
-            return diff / DAY_MILLIS + " days ago";
+            return diff / DAY_MILLIS + "д. назад";
         }
     }
 }

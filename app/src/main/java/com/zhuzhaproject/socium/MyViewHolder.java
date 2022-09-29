@@ -2,6 +2,7 @@ package com.zhuzhaproject.socium;
 
 import android.content.Context;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,21 +17,26 @@ public class MyViewHolder extends RecyclerView.ViewHolder{
     View mView;
     ImageView likes_but;
     LinearLayout imageView;
-    LinearLayout textView;
     ImageView comments_but;
     ImageView mom_delete;
-    LinearLayout mom_delete_view;
+    TextView mom_text_item;
     LinearLayout profile_view;
+    Button likeButton, commentsButton;
+    ImageView moment_image;
+    CircleImageView userDp;
 
     public MyViewHolder(View itemView) {
         super(itemView);
         likes_but = (ImageView) itemView.findViewById(R.id.mom_likes_image);
         imageView = (LinearLayout) itemView.findViewById(R.id.mom_image_view);
-        textView = (LinearLayout) itemView.findViewById(R.id.mom_text_view);
         comments_but = (ImageView) itemView.findViewById(R.id.mom_comment_but);
         mom_delete = (ImageView) itemView.findViewById(R.id.mom_item_delete);
-        mom_delete_view = (LinearLayout) itemView.findViewById(R.id.delete_comment_view);
         profile_view = (LinearLayout) itemView.findViewById(R.id.profile_view);
+        mom_text_item = (TextView) itemView.findViewById(R.id.mom_text_item);
+        likeButton = (Button) itemView.findViewById(R.id.likeButton);
+        commentsButton = (Button) itemView.findViewById(R.id.commentsButton);
+        moment_image = (ImageView) itemView.findViewById(R.id.mom_image_item);
+        userDp = (CircleImageView) itemView.findViewById(R.id.mom_dp);
 
     }
 
@@ -59,7 +65,7 @@ public class MyViewHolder extends RecyclerView.ViewHolder{
     }
     public void setDp(String thumb_image, Context ctx){
         CircleImageView userdp = (CircleImageView) itemView.findViewById(R.id.mom_dp);
-        Picasso.get().load(thumb_image).placeholder(R.drawable.ic_person_black_24dp).into(userdp);
+        Picasso.get().load(thumb_image).into(userdp);
     }
 
     public void setTime(String time){

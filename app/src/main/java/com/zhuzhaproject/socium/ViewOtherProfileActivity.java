@@ -1,14 +1,5 @@
 package com.zhuzhaproject.socium;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,6 +13,15 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
@@ -40,13 +40,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
+import com.zhuzhaproject.socium.Utils.Friends;
 
 import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import com.zhuzhaproject.socium.Utils.Friends;
 
-public class ViewFriendActivity extends AppCompatActivity {
+public class ViewOtherProfileActivity extends AppCompatActivity {
     Toolbar toolbar;
     CircleImageView profileImageView;
     TextView outputUsername, outputLocation, outputProfession, outputStatus, friendsCounter;
@@ -57,7 +57,7 @@ public class ViewFriendActivity extends AppCompatActivity {
     String Uid;
 
     FirebaseRecyclerOptions<Friends> options;
-    FirebaseRecyclerAdapter<Friends, ViewFriendViewHolder> adapter;
+    FirebaseRecyclerAdapter<Friends, ViewOtherProfileViewHolder> adapter;
 
     DatabaseReference mUserRef, mUserRef2, requestRef, friendRef;
     FirebaseAuth mAuth;
@@ -75,7 +75,7 @@ public class ViewFriendActivity extends AppCompatActivity {
 
 
 
-        setContentView(R.layout.activity_view_friend);
+        setContentView(R.layout.activity_view_otherprofile);
 
         toolbar = findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
@@ -89,7 +89,6 @@ public class ViewFriendActivity extends AppCompatActivity {
         friendsCounter = findViewById(R.id.friendCounter2);
 
         userID = getIntent().getStringExtra("userKey");
-        //Toast.makeText(this, ""+userID, Toast.LENGTH_SHORT).show();
 
         btnMsg = findViewById(R.id.btnMsg);
         btnPerform = findViewById(R.id.btnPerform);
@@ -103,10 +102,10 @@ public class ViewFriendActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
-        mUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(userID);
+        mUserRef = FirebaseDatabase.getInstance().getReference().child("Users").child(userID); // mDatabase
         mUserRef2 = FirebaseDatabase.getInstance().getReference().child("Users");
-        requestRef = FirebaseDatabase.getInstance().getReference().child("Requests");
-        friendRef = FirebaseDatabase.getInstance().getReference().child("Friends");
+        requestRef = FirebaseDatabase.getInstance().getReference().child("Friendreq"); // mFriendreqDatabase
+        friendRef = FirebaseDatabase.getInstance().getReference().child("Friends"); // mFriendDatabase
 
         // отключение анимации
         overridePendingTransition(0,0);
@@ -156,7 +155,7 @@ public class ViewFriendActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //Toast.makeText(ViewFriendActivity.this, "В разработке", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(ViewFriendActivity.this, ChatActivity.class);
+                Intent intent = new Intent(ViewOtherProfileActivity.this, ChatActivity.class);
                 intent.putExtra("OtherUserID",userID);
                 startActivity(intent);
                 overridePendingTransition(0,0);
@@ -229,7 +228,7 @@ public class ViewFriendActivity extends AppCompatActivity {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 if (task.isSuccessful()) {
-                                                    Toast.makeText(ViewFriendActivity.this, "Вы удалили друга", Toast.LENGTH_SHORT).show();
+                                                    Toast.makeText(ViewOtherProfileActivity.this, "Вы удалили друга", Toast.LENGTH_SHORT).show();
                                                     CurrentState = "nothing_happen";
                                                     btnPerform.setText("Добавить в друзья");
                                                     btnPerform.setVisibility(View.VISIBLE);
@@ -358,14 +357,14 @@ public class ViewFriendActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task task) {
                     if (task.isSuccessful()) {
-                        Toast.makeText(ViewFriendActivity.this, "Заявка отправлена", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ViewOtherProfileActivity.this, "Заявка отправлена", Toast.LENGTH_SHORT).show();
                         CurrentState = "I_sent_pending";
                         btnPerform.setText("Отменить заявку");
                         btnPerform.setBackgroundDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.btn_grey));
                         btnPerform.setTextColor(getResources().getColor(R.color.colorAccent2));
                         btnDecline.setVisibility(View.GONE);
                     } else {
-                        Toast.makeText(ViewFriendActivity.this, "" + task.getException().toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ViewOtherProfileActivity.this, "" + task.getException().toString(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -375,14 +374,14 @@ public class ViewFriendActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()) {
-                        Toast.makeText(ViewFriendActivity.this, "Заявка отменена", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ViewOtherProfileActivity.this, "Заявка отменена", Toast.LENGTH_SHORT).show();
                         CurrentState = "nothing_happen";
                         btnPerform.setText("Добавить в друзья");
                         btnPerform.setBackgroundDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.btn_blue));
                         btnPerform.setTextColor(getResources().getColor(R.color.white));
                         btnDecline.setVisibility(View.GONE);
                     } else {
-                        Toast.makeText(ViewFriendActivity.this, "" + task.getException().toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ViewOtherProfileActivity.this, "" + task.getException().toString(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });
@@ -427,7 +426,7 @@ public class ViewFriendActivity extends AppCompatActivity {
                                                             friendRef.child(userID).child(mUser.getUid()).updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener() {
                                                                 @Override
                                                                 public void onComplete(@NonNull Task task) {
-                                                                    Toast.makeText(ViewFriendActivity.this, "Вы добавили друга", Toast.LENGTH_SHORT).show();
+                                                                    Toast.makeText(ViewOtherProfileActivity.this, "Вы добавили друга", Toast.LENGTH_SHORT).show();
                                                                     CurrentState = "friend";
                                                                     btnPerform.setVisibility(View.GONE);
                                                                     btnDecline.setText("У вас в друзьях");
@@ -456,7 +455,7 @@ public class ViewFriendActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task task) {
                                     if (task.isSuccessful()) {
-                                        Toast.makeText(ViewFriendActivity.this, "Вы отменили запрос дружбы", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(ViewOtherProfileActivity.this, "Вы отменили запрос дружбы", Toast.LENGTH_SHORT).show();
                                         CurrentState = "he_sent_decline";
                                         btnPerform.setVisibility(View.GONE);
                                         btnDecline.setVisibility(View.GONE);
@@ -494,13 +493,13 @@ public class ViewFriendActivity extends AppCompatActivity {
                     outputUsername.setText(username);
                     outputStatus.setText(status);
                 } else {
-                    Toast.makeText(ViewFriendActivity.this, "Пользователь не существует", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ViewOtherProfileActivity.this, "Пользователь не существует", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(ViewFriendActivity.this, "" + error.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ViewOtherProfileActivity.this, "" + error.getMessage().toString(), Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -509,9 +508,9 @@ public class ViewFriendActivity extends AppCompatActivity {
     private void LoadUsers(String s) {
         Query query = friendRef.child(userID).orderByChild("username");
         options = new FirebaseRecyclerOptions.Builder<Friends>().setQuery(query, Friends.class).build();
-        adapter = new FirebaseRecyclerAdapter<Friends, ViewFriendViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<Friends, ViewOtherProfileViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull ViewFriendViewHolder holder, int position, @NonNull Friends model) {
+            protected void onBindViewHolder(@NonNull ViewOtherProfileViewHolder holder, int position, @NonNull Friends model) {
                 Picasso.get().load(model.getProfileImageUrl()).into(holder.profileImageUrl);
                 holder.username.setText(model.getUsername());
 
@@ -523,7 +522,7 @@ public class ViewFriendActivity extends AppCompatActivity {
                             Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);;
                             startActivity(intent);
                         }else {
-                            Intent intent = new Intent(getApplicationContext(), ViewFriendActivity.class);
+                            Intent intent = new Intent(getApplicationContext(), ViewOtherProfileActivity.class);
                             intent.putExtra("userKey", getRef(position).getKey().toString());
                             startActivity(intent);
                         }
@@ -535,11 +534,11 @@ public class ViewFriendActivity extends AppCompatActivity {
 
             @NonNull
             @Override
-            public ViewFriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public ViewOtherProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_friend2, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_friend, parent, false);
 
-                return new ViewFriendViewHolder(view);
+                return new ViewOtherProfileViewHolder(view);
                 //return null;
             }
         };

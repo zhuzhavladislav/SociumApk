@@ -1,11 +1,5 @@
 package com.zhuzhaproject.socium;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,6 +10,12 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.SearchView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -25,14 +25,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.squareup.picasso.Picasso;
-
 import com.zhuzhaproject.socium.Utils.Friends;
 
 public class FriendsActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     FirebaseRecyclerOptions<Friends>options;
-    FirebaseRecyclerAdapter<Friends, ViewFriendViewHolder>adapter;
+    FirebaseRecyclerAdapter<Friends, ViewOtherProfileViewHolder>adapter;
 
     DatabaseReference friendRef;
     FirebaseAuth mAuth;
@@ -117,9 +116,9 @@ public class FriendsActivity extends AppCompatActivity {
     private void LoadUsers(String s) {
         Query query = friendRef.child(mUser.getUid()).orderByChild("username").startAt(s).endAt(s+"\uf8ff");
         options = new FirebaseRecyclerOptions.Builder<Friends>().setQuery(query, Friends.class).build();
-        adapter = new FirebaseRecyclerAdapter<Friends, ViewFriendViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<Friends, ViewOtherProfileViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull ViewFriendViewHolder holder, int position, @NonNull Friends model) {
+            protected void onBindViewHolder(@NonNull ViewOtherProfileViewHolder holder, int position, @NonNull Friends model) {
                 Picasso.get().load(model.getProfileImageUrl()).into(holder.profileImageUrl);
                 holder.username.setText(model.getUsername());
                 holder.profession.setText(model.getProfession());
@@ -132,7 +131,7 @@ public class FriendsActivity extends AppCompatActivity {
                             Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);;
                             startActivity(intent);
                         }else {
-                            Intent intent = new Intent(getApplicationContext(), ViewFriendActivity.class);
+                            Intent intent = new Intent(getApplicationContext(), ViewOtherProfileActivity.class);
                             intent.putExtra("userKey", getRef(position).getKey().toString());
                             startActivity(intent);
                         }
@@ -144,11 +143,11 @@ public class FriendsActivity extends AppCompatActivity {
 
             @NonNull
             @Override
-            public ViewFriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public ViewOtherProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_friend, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_user, parent, false);
 
-                return new ViewFriendViewHolder(view);
+                return new ViewOtherProfileViewHolder(view);
                 //return null;
             }
         };

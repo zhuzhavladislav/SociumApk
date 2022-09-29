@@ -135,7 +135,7 @@ public class FindFriendActivity extends AppCompatActivity {
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(getApplicationContext(), ViewFriendActivity.class);
+                        Intent intent = new Intent(getApplicationContext(), ViewOtherProfileActivity.class);
                         intent.putExtra("userKey",getRef(position).getKey().toString());
                         startActivity(intent);
                     }
@@ -146,7 +146,7 @@ public class FindFriendActivity extends AppCompatActivity {
             @Override
             public FindFriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_friend, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_user, parent, false);
 
                 return new FindFriendViewHolder(view);
                 //return null;

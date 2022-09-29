@@ -31,10 +31,11 @@ import com.zhuzhaproject.socium.Utils.Users;
 public class ChatUsersActivity extends AppCompatActivity {
     Toolbar toolbar;
 
+    private String Uid;
     FirebaseRecyclerOptions<Users> options;
     FirebaseRecyclerAdapter<Users, FindFriendViewHolder> adapter;
 
-    DatabaseReference mRef,msgRef;
+    DatabaseReference mRef, messageRef;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
     RecyclerView recyclerView;
@@ -53,9 +54,9 @@ public class ChatUsersActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("");
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        mRef = FirebaseDatabase.getInstance().getReference().child("Friends");
-        msgRef = FirebaseDatabase.getInstance().getReference().child("Message");
+        Uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        mRef = FirebaseDatabase.getInstance().getReference().child("Friends").child(Uid);
+        messageRef = FirebaseDatabase.getInstance().getReference().child("Message").child(Uid);
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
 
@@ -122,10 +123,11 @@ public class ChatUsersActivity extends AppCompatActivity {
     private void LoadUsers(String s) {
 
         //test
-        Query query= mRef.child(mUser.getUid()).orderByChild("username").startAt(s).endAt(s+"\uf8ff");
+        //Query query= messageRef;
+        //.orderByChild("username").startAt(s).endAt(s+"\uf8ff")
 
         //correct
-//        Query query= mRef.orderByChild("username").startAt(s).endAt(s+"\uf8ff");
+        Query query= mRef.orderByChild("username").startAt(s).endAt(s+"\uf8ff");
 
         options = new FirebaseRecyclerOptions.Builder<Users>().setQuery(query, Users.class).build();
         adapter = new FirebaseRecyclerAdapter<Users, FindFriendViewHolder>(options) {
@@ -155,7 +157,7 @@ public class ChatUsersActivity extends AppCompatActivity {
             @Override
             public FindFriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_friend, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_user, parent, false);
 
                 return new FindFriendViewHolder(view);
                 //return null;

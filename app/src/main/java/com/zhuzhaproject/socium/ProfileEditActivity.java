@@ -16,6 +16,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -25,17 +29,20 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
+
+import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ProfileActivity2 extends AppCompatActivity {
+public class ProfileEditActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 101;
     Toolbar toolbar;
     CircleImageView profileImageView;
     EditText inputUsername, inputCountry, inputCity, inputProfession;
     Button btnUpdate;
-
+    public String profileImageUrl;
     DatabaseReference mUserRef;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
@@ -46,7 +53,7 @@ public class ProfileActivity2 extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile2);
+        setContentView(R.layout.activity_profile_edit);
 
         toolbar = findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
@@ -77,7 +84,7 @@ public class ProfileActivity2 extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    String profileImageUrl = snapshot.child("profileImage").getValue().toString();
+                    profileImageUrl = snapshot.child("profileImage").getValue().toString();
                     String city = snapshot.child("city").getValue().toString();
                     String country = snapshot.child("country").getValue().toString();
                     String profession = snapshot.child("profession").getValue().toString();
@@ -89,13 +96,13 @@ public class ProfileActivity2 extends AppCompatActivity {
                     inputProfession.setText(profession);
                     inputUsername.setText(username);
                 } else {
-                    Toast.makeText(ProfileActivity2.this, "Профиль не существует", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProfileEditActivity.this, "Профиль не существует", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(ProfileActivity2.this, "" + error.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProfileEditActivity.this, "" + error.getMessage().toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -104,10 +111,10 @@ public class ProfileActivity2 extends AppCompatActivity {
         profileImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(ProfileActivity2.this, "На данный момент фотографию сменить нельзя", Toast.LENGTH_SHORT).show();
-        //        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        //        intent.setType("image/*");
-        //        startActivityForResult(intent, REQUEST_CODE);
+//                Toast.makeText(ProfileActivity2.this, "На данный момент фотографию сменить нельзя", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(intent, REQUEST_CODE);
             }
         });
 
@@ -115,8 +122,6 @@ public class ProfileActivity2 extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 UpdateData();
-                startActivity(new Intent(getApplicationContext()
-                        ,ProfileActivity.class));
             }
         });
     }
@@ -137,13 +142,67 @@ public class ProfileActivity2 extends AppCompatActivity {
         } else if(profession.isEmpty() || profession.length()<3) {
             showError(inputProfession, "Профессия введена неверно");
         }else{
+            mLoadingBar.setTitle("Настройка профиля");
+            mLoadingBar.setCanceledOnTouchOutside(false);
+            mLoadingBar.show();
+            if(imageUri!=null){
+                StorageRef.child(mUser.getUid()).putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        if (task.isSuccessful())
+                        {
+                            StorageRef.child(mUser.getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    HashMap hashMap=new HashMap();
+                                    hashMap.put("username", username);
+                                    hashMap.put("city", city);
+                                    hashMap.put("country", country);
+                                    hashMap.put("profession", profession);
+                                    hashMap.put("profileImage", uri.toString());
 
-            mUserRef.child(mUser.getUid()).child("username").setValue(username);
-            mUserRef.child(mUser.getUid()).child("city").setValue(city);
-            mUserRef.child(mUser.getUid()).child("country").setValue(country);
-            mUserRef.child(mUser.getUid()).child("profession").setValue(profession);
 
-            Toast.makeText(ProfileActivity2.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                                    mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
+                                        @Override
+                                        public void onSuccess(Object o) {
+                                            mLoadingBar.dismiss();
+                                            finish();
+                                            Toast.makeText(ProfileEditActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            mLoadingBar.dismiss();
+                                            Toast.makeText(ProfileEditActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            } else {
+                HashMap hashMap=new HashMap();
+                hashMap.put("username", username);
+                hashMap.put("city", city);
+                hashMap.put("country", country);
+                hashMap.put("profession", profession);
+                mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
+                    @Override
+                    public void onSuccess(Object o) {
+                        mLoadingBar.dismiss();
+                        finish();
+                        Toast.makeText(ProfileEditActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        mLoadingBar.dismiss();
+                        Toast.makeText(ProfileEditActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
         }
 
     }

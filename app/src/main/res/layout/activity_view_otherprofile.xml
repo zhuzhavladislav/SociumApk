@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".ViewFriendActivity">
+    tools:context=".ViewOtherProfileActivity">
 
     <include
         android:id="@+id/app_bar"
@@ -277,7 +277,7 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <include layout="@layout/shimmer_activity_view_friend" />
+            <include layout="@layout/shimmer_activity_view_profile" />
 
         </LinearLayout>
 
