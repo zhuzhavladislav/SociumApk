@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
-        app:cardCornerRadius="0dp"
+        app:cardCornerRadius="15dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,10 +24,10 @@
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/mom_dp"
-                android:layout_width="45dp"
-                android:layout_height="45dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_marginStart="15dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="15dp"
                 android:src="@drawable/profile2"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -35,9 +35,8 @@
             <TextView
                 android:id="@+id/mom_name"
                 android:layout_width="0dp"
-                android:layout_height="20dp"
+                android:layout_height="17dp"
                 android:layout_marginStart="12dp"
-                android:layout_marginTop="3dp"
                 android:layout_marginEnd="120dp"
                 android:background="@drawable/bg_shimmer"
                 android:fontFamily="@font/sfpro_semibold"

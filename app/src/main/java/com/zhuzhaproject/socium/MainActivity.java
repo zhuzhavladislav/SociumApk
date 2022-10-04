@@ -20,9 +20,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.Toolbar;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -62,11 +60,9 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> friends_IdList;
     String profileImageUrlV, usernameV;
 
-    ImageButton addFriends;
+    ImageButton addFriends, createPost;
     CircleImageView profileImage;
-    ImageView logo, editIcon;
-
-    AppCompatButton btnCreatePost;
+    ImageView logo;
 
     private static final int REQUEST_CODE = 101;
     Uri imageUri;
@@ -75,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
     FirebaseRecyclerOptions<Moment> options;
 
     RecyclerView recyclerView;
-    CardView cardView;
     ShimmerFrameLayout shimmerFrameLayout;
 
     static int y;
@@ -91,10 +86,6 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("");
         mLoadingBar = new ProgressDialog(this);
 
-        btnCreatePost = findViewById(R.id.btnCreatePost);
-        editIcon = findViewById(R.id.ic_edit);
-
-        cardView = findViewById(R.id.cardView);
         shimmerFrameLayout = findViewById(R.id.shimmerFrameLayout);
         recyclerView = findViewById(R.id.recyclerView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -134,63 +125,64 @@ public class MainActivity extends AppCompatActivity {
         });
         friends_IdList.add(Uid);
 
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                y = dy;
-            }
-
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                if (recyclerView.SCROLL_STATE_SETTLING == newState)
-                    if (y > 0) {
-
-                        if (btnCreatePost.getVisibility() != View.GONE) {
-                            YoYo.with(Techniques.FadeOutUp)
-                                    .duration(300)
-                                    .playOn(btnCreatePost);
-                            YoYo.with(Techniques.FadeOutUp)
-                                    .duration(300)
-                                    .playOn(editIcon);
-                            YoYo.with(Techniques.FadeOutUp)
-                                    .duration(300)
-                                    .playOn(cardView);
-                            new Handler().postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    btnCreatePost.setVisibility(View.GONE);
-                                    editIcon.setVisibility(View.GONE);
-                                    cardView.setVisibility(View.GONE);
-                                }
-                            }, 300); //Time in milisecond
-                        }
-
-                    } else if (y < 0) {
-                        if (btnCreatePost.getVisibility() != View.VISIBLE) {
-                            YoYo.with(Techniques.FadeInDown)
-                                    .duration(400)
-                                    .playOn(btnCreatePost);
-                            YoYo.with(Techniques.FadeInDown)
-                                    .duration(400)
-                                    .playOn(editIcon);
-                            YoYo.with(Techniques.FadeInDown)
-                                    .duration(400)
-                                    .playOn(cardView);
-                            btnCreatePost.setVisibility(View.VISIBLE);
-                            editIcon.setVisibility(View.VISIBLE);
-                            cardView.setVisibility(View.VISIBLE);
-                        }
-
-                    }
-            }
-
-        });
+//        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+//            @Override
+//            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+//                super.onScrolled(recyclerView, dx, dy);
+//                y = dy;
+//            }
+//
+//            @Override
+//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+//                super.onScrollStateChanged(recyclerView, newState);
+//                if (recyclerView.SCROLL_STATE_SETTLING == newState)
+//                    if (y > 0) {
+//
+//                        if (btnCreatePost.getVisibility() != View.GONE) {
+//                            YoYo.with(Techniques.FadeOutUp)
+//                                    .duration(300)
+//                                    .playOn(btnCreatePost);
+//                            YoYo.with(Techniques.FadeOutUp)
+//                                    .duration(300)
+//                                    .playOn(editIcon);
+//                            YoYo.with(Techniques.FadeOutUp)
+//                                    .duration(300)
+//                                    .playOn(cardView);
+//                            new Handler().postDelayed(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    btnCreatePost.setVisibility(View.GONE);
+//                                    editIcon.setVisibility(View.GONE);
+//                                    cardView.setVisibility(View.GONE);
+//                                }
+//                            }, 300); //Time in milisecond
+//                        }
+//
+//                    } else if (y < 0) {
+//                        if (btnCreatePost.getVisibility() != View.VISIBLE) {
+//                            YoYo.with(Techniques.FadeInDown)
+//                                    .duration(400)
+//                                    .playOn(btnCreatePost);
+//                            YoYo.with(Techniques.FadeInDown)
+//                                    .duration(400)
+//                                    .playOn(editIcon);
+//                            YoYo.with(Techniques.FadeInDown)
+//                                    .duration(400)
+//                                    .playOn(cardView);
+//                            btnCreatePost.setVisibility(View.VISIBLE);
+//                            editIcon.setVisibility(View.VISIBLE);
+//                            cardView.setVisibility(View.VISIBLE);
+//                        }
+//
+//                    }
+//            }
+//
+//        });
 
 
         //Toolbar
         addFriends = (ImageButton) findViewById(R.id.toolbar_addFriends);
+        createPost = (ImageButton) findViewById(R.id.toolbar_creatPost);
         profileImage = (CircleImageView) findViewById(R.id.toolbar_profile);
         logo = (ImageView) findViewById(R.id.toolbar_logo);
 
@@ -205,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnCreatePost.setOnClickListener(new View.OnClickListener() {
+        createPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(getApplicationContext()
