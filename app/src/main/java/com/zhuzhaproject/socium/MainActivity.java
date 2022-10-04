@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         friendsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot ds: dataSnapshot.getChildren()){
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     friends_IdList.add(ds.getKey());
                 }
             }
@@ -158,9 +158,9 @@ public class MainActivity extends AppCompatActivity {
         profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext()
-                        , ProfileActivity.class));
-
+                Intent profIntent = new Intent(MainActivity.this, ProfileActivity.class);
+                profIntent.putExtra("userKey", Uid);
+                startActivity(profIntent);
             }
         });
 
@@ -367,10 +367,10 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
 
-                        Intent commentIntent = new Intent(MainActivity.this,CommentsActivity.class);
-                        commentIntent.putExtra("post_id",post_id);
-                        commentIntent.putExtra("name",By);
-                        commentIntent.putExtra("time",postTime);
+                        Intent commentIntent = new Intent(MainActivity.this, CommentsActivity.class);
+                        commentIntent.putExtra("post_id", post_id);
+                        commentIntent.putExtra("name", By);
+                        commentIntent.putExtra("time", postTime);
                         startActivity(commentIntent);
                     }
                 });
@@ -378,17 +378,9 @@ public class MainActivity extends AppCompatActivity {
                 holder.user_image.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
-                        if (By.equals(Uid)) {
-                            Intent profIntent = new Intent(MainActivity.this, ViewOtherProfileActivity.class);
-                            profIntent.putExtra("userKey", By);
-                            startActivity(profIntent);
-                        } else {
-                            Intent profIntent = new Intent(MainActivity.this, ViewOtherProfileActivity.class);
-                            profIntent.putExtra("userKey", By);
-                            startActivity(profIntent);
-                        }
-
+                        Intent profIntent = new Intent(MainActivity.this, ProfileActivity.class);
+                        profIntent.putExtra("userKey", By);
+                        startActivity(profIntent);
                     }
                 });
 

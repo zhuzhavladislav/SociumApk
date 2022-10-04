@@ -30,8 +30,8 @@ import com.zhuzhaproject.socium.Utils.Friends;
 public class FriendsActivity extends AppCompatActivity {
     Toolbar toolbar;
 
-    FirebaseRecyclerOptions<Friends>options;
-    FirebaseRecyclerAdapter<Friends, ViewOtherProfileViewHolder>adapter;
+    FirebaseRecyclerOptions<Friends> options;
+    FirebaseRecyclerAdapter<Friends, ProfileViewHolder> adapter;
 
     DatabaseReference friendRef;
     FirebaseAuth mAuth;
@@ -66,7 +66,7 @@ public class FriendsActivity extends AppCompatActivity {
         }
 
         // отключение анимации
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
         // нижняя навигация
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         // выбранный элемент в нижнем меню
@@ -79,15 +79,15 @@ public class FriendsActivity extends AppCompatActivity {
                     case R.id.nav_home:
                         startActivity(new Intent(getApplicationContext()
                                 , MainActivity.class));
-                        overridePendingTransition(0,0);
+                        overridePendingTransition(0, 0);
                         return false;
                     case R.id.nav_chat:
                         startActivity(new Intent(getApplicationContext()
                                 , ChatUsersActivity.class));
-                        overridePendingTransition(0,0);
+                        overridePendingTransition(0, 0);
                         return false;
                     case R.id.nav_friends:
-                        overridePendingTransition(0,0);
+                        overridePendingTransition(0, 0);
                         return false;
                 }
                 return false;
@@ -112,13 +112,12 @@ public class FriendsActivity extends AppCompatActivity {
     }
 
 
-
     private void LoadUsers(String s) {
-        Query query = friendRef.child(mUser.getUid()).orderByChild("username").startAt(s).endAt(s+"\uf8ff");
+        Query query = friendRef.child(mUser.getUid()).orderByChild("username").startAt(s).endAt(s + "\uf8ff");
         options = new FirebaseRecyclerOptions.Builder<Friends>().setQuery(query, Friends.class).build();
-        adapter = new FirebaseRecyclerAdapter<Friends, ViewOtherProfileViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<Friends, ProfileViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull ViewOtherProfileViewHolder holder, int position, @NonNull Friends model) {
+            protected void onBindViewHolder(@NonNull ProfileViewHolder holder, int position, @NonNull Friends model) {
                 Picasso.get().load(model.getProfileImageUrl()).into(holder.profileImageUrl);
                 holder.username.setText(model.getUsername());
                 holder.profession.setText(model.getProfession());
@@ -126,16 +125,9 @@ public class FriendsActivity extends AppCompatActivity {
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (mUser.getUid().equals(getRef(position).getKey().toString()))
-                        {
-                            Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);;
-                            startActivity(intent);
-                        }else {
-                            Intent intent = new Intent(getApplicationContext(), ViewOtherProfileActivity.class);
-                            intent.putExtra("userKey", getRef(position).getKey().toString());
-                            startActivity(intent);
-                        }
-
+                        Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                        intent.putExtra("userKey", getRef(position).getKey().toString());
+                        startActivity(intent);
                     }
                 });
 
@@ -143,11 +135,11 @@ public class FriendsActivity extends AppCompatActivity {
 
             @NonNull
             @Override
-            public ViewOtherProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public ProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_user, parent, false);
 
-                return new ViewOtherProfileViewHolder(view);
+                return new ProfileViewHolder(view);
                 //return null;
             }
         };

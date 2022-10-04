@@ -78,7 +78,7 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <androidx.appcompat.widget.AppCompatButton
-                            android:id="@+id/btnMsg"
+                            android:id="@+id/btnEdit"
                             style="?android:attr/borderlessButtonStyle"
                             android:layout_width="0dp"
                             android:layout_height="37dp"
@@ -90,10 +90,68 @@
                             android:textAllCaps="false"
                             android:textColor="@color/colorAccent2"
                             android:textSize="17sp"
+                            android:visibility="visible"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="@+id/outputProfession"
                             app:layout_constraintHorizontal_bias="0.09"
                             app:layout_constraintStart_toStartOf="@+id/imageView4"
+                            app:layout_constraintTop_toBottomOf="@+id/outputProfession" />
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btnDecline"
+                            style="?android:attr/borderlessButtonStyle"
+                            android:layout_width="0dp"
+                            android:layout_height="37dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="15dp"
+                            android:layout_marginBottom="15dp"
+                            android:background="@drawable/btn_grey"
+                            android:fontFamily="@font/sf_pro_text_regular"
+                            android:text="Отменить заявку"
+                            android:textAllCaps="false"
+                            android:textColor="@color/colorAccent2"
+                            android:textSize="17sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="@+id/outputProfession"
+                            app:layout_constraintStart_toEndOf="@+id/btnMsg"
+                            app:layout_constraintTop_toBottomOf="@+id/outputProfession" />
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btnMsg"
+                            style="?android:attr/borderlessButtonStyle"
+                            android:layout_width="0dp"
+                            android:layout_height="37dp"
+                            android:layout_marginTop="15dp"
+                            android:layout_marginEnd="195dp"
+                            android:layout_marginBottom="15dp"
+                            android:background="@drawable/btn_blue"
+                            android:fontFamily="@font/sf_pro_text_regular"
+                            android:text="Сообщение"
+                            android:textAllCaps="false"
+                            android:textColor="@color/white"
+                            android:textSize="17sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="@+id/outputProfession"
+                            app:layout_constraintStart_toStartOf="@+id/imageView4"
+                            app:layout_constraintTop_toBottomOf="@+id/outputProfession" />
+
+                        <androidx.appcompat.widget.AppCompatButton
+                            android:id="@+id/btnPerform"
+                            style="?android:attr/borderlessButtonStyle"
+                            android:layout_width="0dp"
+                            android:layout_height="37dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="15dp"
+                            android:layout_marginBottom="15dp"
+                            android:background="@drawable/btn_blue"
+                            android:fontFamily="@font/sf_pro_text_regular"
+                            android:text="Добавить в друзья"
+                            android:textAllCaps="false"
+                            android:textColor="@color/white"
+                            android:textSize="17sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="@+id/outputProfession"
+                            app:layout_constraintStart_toEndOf="@+id/btnMsg"
                             app:layout_constraintTop_toBottomOf="@+id/outputProfession" />
 
                         <ImageView

@@ -99,6 +99,20 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/inputCountry" />
 
+            <EditText
+                android:id="@+id/inputStatus"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:ems="10"
+                android:hint="Статус / о себе"
+                android:inputType="textPersonName"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/inputProfession" />
+
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnUpdate"
                 android:layout_width="0dp"
@@ -108,7 +122,7 @@
                 android:textColor="@color/white"
                 app:layout_constraintEnd_toEndOf="@+id/inputProfession"
                 app:layout_constraintStart_toStartOf="@+id/inputProfession"
-                app:layout_constraintTop_toBottomOf="@+id/inputProfession" />
+                app:layout_constraintTop_toBottomOf="@+id/inputStatus" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

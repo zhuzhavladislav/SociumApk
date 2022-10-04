@@ -8,12 +8,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ViewOtherProfileViewHolder extends RecyclerView.ViewHolder {
+public class ProfileViewHolder extends RecyclerView.ViewHolder {
 
     CircleImageView profileImageUrl;
     TextView username, profession;
 
-    public ViewOtherProfileViewHolder(@NonNull View itemView) {
+    public ProfileViewHolder(@NonNull View itemView) {
         super(itemView);
         profileImageUrl = itemView.findViewById(R.id.profile_image);
         username = itemView.findViewById(R.id.user_name);

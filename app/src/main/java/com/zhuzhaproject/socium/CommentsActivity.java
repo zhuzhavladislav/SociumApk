@@ -224,7 +224,7 @@ public class CommentsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         Intent profIntent = new Intent(CommentsActivity.this, ProfileActivity.class);
-                        profIntent.putExtra("from_user_id", By);
+                        profIntent.putExtra("userKey", By);
                         startActivity(profIntent);
                     }
                 });

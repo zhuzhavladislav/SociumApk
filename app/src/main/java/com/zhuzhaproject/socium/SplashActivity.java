@@ -56,7 +56,7 @@ public class SplashActivity extends AppCompatActivity {
                                 finish();
                             }else
                             {
-                                Intent intent=new Intent(SplashActivity.this, SetupActivity.class);
+                                Intent intent=new Intent(SplashActivity.this, ProfileEditActivity.class);
                                 startActivity(intent);
                                 finish();
                             }

@@ -27,6 +27,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -40,7 +41,7 @@ public class ProfileEditActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 101;
     Toolbar toolbar;
     CircleImageView profileImageView;
-    EditText inputUsername, inputCountry, inputCity, inputProfession;
+    EditText inputUsername, inputCountry, inputCity, inputProfession, inputStatus;
     Button btnUpdate;
     public String profileImageUrl;
     DatabaseReference mUserRef;
@@ -64,6 +65,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         inputCountry = findViewById(R.id.inputCountry);
         inputCity = findViewById(R.id.inputCity);
         inputProfession = findViewById(R.id.inputProfession);
+        inputStatus = findViewById(R.id.inputStatus);
         btnUpdate = findViewById(R.id.btnUpdate);
         mLoadingBar=new ProgressDialog(this);
 
@@ -71,7 +73,6 @@ public class ProfileEditActivity extends AppCompatActivity {
         mUser = mAuth.getCurrentUser();
         mUserRef = FirebaseDatabase.getInstance().getReference().child("Users");
         StorageRef = FirebaseStorage.getInstance().getReference().child("ProfileImage");
-
         //changing statusbar color
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             Window window = this.getWindow();
@@ -89,14 +90,17 @@ public class ProfileEditActivity extends AppCompatActivity {
                     String country = snapshot.child("country").getValue().toString();
                     String profession = snapshot.child("profession").getValue().toString();
                     String username = snapshot.child("username").getValue().toString();
+                    String status = snapshot.child("status").getValue().toString();
 
                     Picasso.get().load(profileImageUrl).into(profileImageView);
                     inputCity.setText(city);
                     inputCountry.setText(country);
                     inputProfession.setText(profession);
                     inputUsername.setText(username);
+                    inputStatus.setText(status);
                 } else {
-                    Toast.makeText(ProfileEditActivity.this, "Профиль не существует", Toast.LENGTH_SHORT).show();
+                    btnUpdate.setText("Сохранить");
+                    //Toast.makeText(ProfileEditActivity.this, "Профиль не существует", Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -106,12 +110,9 @@ public class ProfileEditActivity extends AppCompatActivity {
             }
         });
 
-
-        //Фотку менять пока что нельзя, меняется url, соответственно в постах пропадает старая фотка
         profileImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Toast.makeText(ProfileActivity2.this, "На данный момент фотографию сменить нельзя", Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
                 startActivityForResult(intent, REQUEST_CODE);
@@ -132,6 +133,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         String city = inputCity.getText().toString();
         String country = inputCountry.getText().toString();
         String profession = inputProfession.getText().toString();
+        String status = inputStatus.getText().toString();
 
         if (username.isEmpty() || username.length() < 3) {
             showError(inputUsername, "Имя и фамилия введены неверно");
@@ -159,15 +161,19 @@ public class ProfileEditActivity extends AppCompatActivity {
                                     hashMap.put("city", city);
                                     hashMap.put("country", country);
                                     hashMap.put("profession", profession);
+                                    hashMap.put("status", status);
                                     hashMap.put("profileImage", uri.toString());
+                                    hashMap.put("device_token", FirebaseInstanceId.getInstance().getToken());
 
 
                                     mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
                                         @Override
                                         public void onSuccess(Object o) {
                                             mLoadingBar.dismiss();
-                                            finish();
                                             Toast.makeText(ProfileEditActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+//                                            Intent intent=new Intent(ProfileEditActivity.this, MainActivity.class);
+//                                            intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+//                                            startActivity(intent);
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
@@ -181,18 +187,21 @@ public class ProfileEditActivity extends AppCompatActivity {
                         }
                     }
                 });
-            } else {
+            } else if (imageUri==null && profileImageUrl!=null && profileImageUrl!="") {
                 HashMap hashMap=new HashMap();
                 hashMap.put("username", username);
                 hashMap.put("city", city);
                 hashMap.put("country", country);
                 hashMap.put("profession", profession);
+                hashMap.put("status", status);
                 mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
                     @Override
                     public void onSuccess(Object o) {
                         mLoadingBar.dismiss();
-                        finish();
                         Toast.makeText(ProfileEditActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+//                        Intent intent=new Intent(ProfileEditActivity.this, MainActivity.class);
+//                        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+//                        startActivity(intent);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -201,6 +210,9 @@ public class ProfileEditActivity extends AppCompatActivity {
                         Toast.makeText(ProfileEditActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
+            } else {
+                mLoadingBar.dismiss();
+                Toast.makeText(ProfileEditActivity.this, "При создании профиля необходимо добавить изображение", Toast.LENGTH_SHORT).show();
             }
 
         }

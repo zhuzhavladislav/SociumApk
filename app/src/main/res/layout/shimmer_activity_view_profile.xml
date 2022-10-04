@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/color"
-    tools:context=".ViewOtherProfileActivity">
+    tools:context=".ProfileActivity">
 
     <androidx.cardview.widget.CardView
         android:layout_width="0dp"
@@ -292,8 +292,8 @@
                 android:layout_marginTop="15dp"
                 android:background="#e9eaec"
                 app:layout_constraintEnd_toEndOf="@+id/outputStatus"
-                app:layout_constraintStart_toStartOf="@+id/btnMsg"
-                app:layout_constraintTop_toBottomOf="@+id/btnMsg" />
+                app:layout_constraintStart_toStartOf="@+id/btnEdit"
+                app:layout_constraintTop_toBottomOf="@+id/btnEdit" />
 
             <View
                 android:id="@+id/view3"
@@ -317,7 +317,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/recyclerView" />
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnMsg"
+                android:id="@+id/btnEdit"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="37dp"
@@ -344,10 +344,10 @@
                 android:textAllCaps="false"
                 android:textColor="@color/white"
                 android:textSize="17sp"
-                app:layout_constraintBottom_toBottomOf="@+id/btnMsg"
+                app:layout_constraintBottom_toBottomOf="@+id/btnEdit"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/btnMsg"
-                app:layout_constraintTop_toTopOf="@+id/btnMsg" />
+                app:layout_constraintStart_toEndOf="@+id/btnEdit"
+                app:layout_constraintTop_toTopOf="@+id/btnEdit" />
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/imageView2"
@@ -356,7 +356,7 @@
                 android:layout_marginTop="15dp"
                 android:src="@drawable/profile2"
                 app:civ_border_width="0dp"
-                app:layout_constraintStart_toStartOf="@+id/btnMsg"
+                app:layout_constraintStart_toStartOf="@+id/btnEdit"
                 app:layout_constraintTop_toBottomOf="@+id/view2"
                 tools:ignore="MissingConstraints" />
 

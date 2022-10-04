@@ -20,7 +20,7 @@
             android:layout_height="match_parent" >
 
             <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/btnMsg"
+                android:id="@+id/btnEdit"
                 style="?android:attr/borderlessButtonStyle"
                 android:layout_width="match_parent"
                 android:layout_height="34dp"
