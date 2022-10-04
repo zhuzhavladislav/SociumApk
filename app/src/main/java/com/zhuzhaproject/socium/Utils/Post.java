@@ -2,7 +2,7 @@ package com.zhuzhaproject.socium.Utils;
 
 
 
-public class Moment {
+public class Post {
 
 
     public long getTimestamp() {
@@ -13,13 +13,13 @@ public class Moment {
         this.timestamp = timestamp;
     }
 
-    public Moment(long timestamp,String by,String liked) {
+    public Post(long timestamp, String by, String liked) {
         this.timestamp = timestamp;
         this.by = by;
         this.liked = liked;
     }
 
-    public Moment(){
+    public Post(){
 
     }
     public long timestamp;

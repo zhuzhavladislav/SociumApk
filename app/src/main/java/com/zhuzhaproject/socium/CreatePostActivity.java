@@ -85,11 +85,11 @@ public class CreatePostActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_post);
 
         addImagePost = findViewById(R.id.addImagePost);
-        sendImagePost = findViewById(R.id.send_post_imageView);
-        inputPostDesc = findViewById(R.id.inputPostDesc);
+        sendImagePost = findViewById(R.id.send_comment);
+        inputPostDesc = findViewById(R.id.input_comment);
         mLoadingBar = new ProgressDialog(this);
 
-        profileImage = findViewById(R.id.profileImage);
+        profileImage = findViewById(R.id.profile_image);
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();

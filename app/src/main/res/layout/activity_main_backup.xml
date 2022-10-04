@@ -44,7 +44,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/recyclerView" />
 
         <EditText
-            android:id="@+id/inputPostDesc"
+            android:id="@+id/input_comment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -65,19 +65,19 @@
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginStart="10dp"
-            app:layout_constraintBottom_toBottomOf="@+id/inputPostDesc"
-            app:layout_constraintStart_toStartOf="@+id/inputPostDesc"
-            app:layout_constraintTop_toTopOf="@+id/inputPostDesc"
+            app:layout_constraintBottom_toBottomOf="@+id/input_comment"
+            app:layout_constraintStart_toStartOf="@+id/input_comment"
+            app:layout_constraintTop_toTopOf="@+id/input_comment"
             app:srcCompat="@drawable/ic_add_image" />
 
         <ImageView
-            android:id="@+id/send_post_imageView"
+            android:id="@+id/send_comment"
             android:layout_width="23dp"
             android:layout_height="23dp"
             android:layout_marginEnd="13dp"
-            app:layout_constraintBottom_toBottomOf="@+id/inputPostDesc"
-            app:layout_constraintEnd_toEndOf="@+id/inputPostDesc"
-            app:layout_constraintTop_toTopOf="@+id/inputPostDesc"
+            app:layout_constraintBottom_toBottomOf="@+id/input_comment"
+            app:layout_constraintEnd_toEndOf="@+id/input_comment"
+            app:layout_constraintTop_toTopOf="@+id/input_comment"
             app:srcCompat="@drawable/ic_accept" />
 
         <com.google.android.material.bottomnavigation.BottomNavigationView

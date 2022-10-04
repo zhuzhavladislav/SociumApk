@@ -50,8 +50,8 @@ public class MyViewHolder extends RecyclerView.ViewHolder{
     public void setUserName(String name){
         user_name.setText(name);
     }
-    public void setUserImage(String thumb_image){
-        Picasso.get().load(thumb_image).into(user_image);
+    public void setUserImage(String profileImage){
+        Picasso.get().load(profileImage).into(user_image);
     }
     public void setPostTime(String time){
         post_time.setText(time);

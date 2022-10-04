@@ -2,7 +2,6 @@ package com.zhuzhaproject.socium;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,8 +19,6 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.daimajia.androidanimations.library.Techniques;
-import com.daimajia.androidanimations.library.YoYo;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -75,9 +72,10 @@ public class ProfileActivity extends AppCompatActivity {
         Uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        cardView2 = findViewById(R.id.cardView2);
-        cardView2.setVisibility(View.INVISIBLE);
+//        cardView2 = findViewById(R.id.cardView2);
+//        cardView2.setVisibility(View.INVISIBLE);
         shimmerFrameLayout = findViewById(R.id.shimmerFrameLayout);
+        shimmerFrameLayout.setVisibility(View.GONE);
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
@@ -116,7 +114,7 @@ public class ProfileActivity extends AppCompatActivity {
         });
 
 
-        LoadUsers("");
+        LoadUsers();
 
         //changing statusbar color
         if (android.os.Build.VERSION.SDK_INT >= 21) {
@@ -179,25 +177,26 @@ public class ProfileActivity extends AppCompatActivity {
             }
         });
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                cardView2.setVisibility(View.VISIBLE);
-                YoYo.with(Techniques.FadeOut)
-                        .duration(100)
-                        .playOn(shimmerFrameLayout);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        shimmerFrameLayout.setVisibility(View.GONE);
-                    }
-                }, 100);
-            }
-        }, 1000);
+        //shimmer
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                cardView2.setVisibility(View.VISIBLE);
+//                YoYo.with(Techniques.FadeOut)
+//                        .duration(100)
+//                        .playOn(shimmerFrameLayout);
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        shimmerFrameLayout.setVisibility(View.GONE);
+//                    }
+//                }, 100);
+//            }
+//        }, 1000);
 
     }
 
-    private void LoadUsers(String s) {
+    private void LoadUsers() {
         Query query = friendRef.orderByChild("username");
         options = new FirebaseRecyclerOptions.Builder<Friends>().setQuery(query, Friends.class).build();
         adapter = new FirebaseRecyclerAdapter<Friends, ViewOtherProfileViewHolder>(options) {

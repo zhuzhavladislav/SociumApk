@@ -96,9 +96,10 @@ public class ViewOtherProfileActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        cardView = findViewById(R.id.CardView);
-        cardView.setVisibility(View.INVISIBLE);
+//        cardView = findViewById(R.id.CardView);
+//        cardView.setVisibility(View.INVISIBLE);
         shimmerFrameLayout = findViewById(R.id.shimmerFrameLayout);
+        shimmerFrameLayout.setVisibility(View.GONE);
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
@@ -139,7 +140,7 @@ public class ViewOtherProfileActivity extends AppCompatActivity {
         });
 
         LoadUser();
-        LoadUsers("");
+        LoadUsers();
 
 
         //changing statusbar color
@@ -193,22 +194,22 @@ public class ViewOtherProfileActivity extends AppCompatActivity {
             }
         });
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                cardView.setVisibility(View.VISIBLE);
-                YoYo.with(Techniques.FadeOut)
-                        .duration(100)
-                        .playOn(shimmerFrameLayout);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        shimmerFrameLayout.setVisibility(View.GONE);
-                    }
-                }, 100);
-            }
-        }, 1300);
-
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                cardView.setVisibility(View.VISIBLE);
+//                YoYo.with(Techniques.FadeOut)
+//                        .duration(100)
+//                        .playOn(shimmerFrameLayout);
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        shimmerFrameLayout.setVisibility(View.GONE);
+//                    }
+//                }, 100);
+//            }
+//        }, 1300);
+//
     }
 
     private void Unfriend(String userID) {
@@ -505,7 +506,7 @@ public class ViewOtherProfileActivity extends AppCompatActivity {
         });
     }
 
-    private void LoadUsers(String s) {
+    private void LoadUsers() {
         Query query = friendRef.child(userID).orderByChild("username");
         options = new FirebaseRecyclerOptions.Builder<Friends>().setQuery(query, Friends.class).build();
         adapter = new FirebaseRecyclerAdapter<Friends, ViewOtherProfileViewHolder>(options) {

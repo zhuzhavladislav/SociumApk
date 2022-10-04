@@ -39,7 +39,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
-import com.zhuzhaproject.socium.Utils.Moment;
+import com.zhuzhaproject.socium.Utils.Post;
 
 import java.util.ArrayList;
 
@@ -50,11 +50,7 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
-    private DatabaseReference postRef;
-    private DatabaseReference userRef;
-    private DatabaseReference allPostsRef;
-    private DatabaseReference friendsRef;
-    private DatabaseReference usersPostRef;
+    private DatabaseReference postRef, userRef, allPostsRef, friendsRef, usersPostRef;
     private String Uid;
 
     private ArrayList<String> friends_IdList;
@@ -67,13 +63,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 101;
     Uri imageUri;
     ProgressDialog mLoadingBar;
-    FirebaseRecyclerAdapter<Moment, MyViewHolder> adapter;
-    FirebaseRecyclerOptions<Moment> options;
+    FirebaseRecyclerAdapter<Post, MyViewHolder> adapter;
+    FirebaseRecyclerOptions<Post> options;
 
     RecyclerView recyclerView;
     ShimmerFrameLayout shimmerFrameLayout;
-
-    static int y;
 
     @Nullable
     @Override
@@ -228,10 +222,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void LoadPost() {
-        options = new FirebaseRecyclerOptions.Builder<Moment>().setQuery(postRef.child(Uid), Moment.class).build();
-        adapter = new FirebaseRecyclerAdapter<Moment, MyViewHolder>(options) {
+        options = new FirebaseRecyclerOptions.Builder<Post>().setQuery(postRef.child(Uid), Post.class).build();
+        adapter = new FirebaseRecyclerAdapter<Post, MyViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NonNull Moment model) {
+            protected void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NonNull Post model) {
                 final String By = model.getBy();
                 long timestamp = model.getTimestamp();
                 final String liked = model.getLiked();
@@ -240,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
                 final String postTime = gta.getTimeAgo(timestamp);
                 holder.setPostTime(postTime);
 
-                final String moment_id = getRef(position).getKey();
+                final String post_id = getRef(position).getKey();
 
                 if (By.equals(Uid)) {
                     holder.post_item_delete.setVisibility(View.VISIBLE);
@@ -262,10 +256,10 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
 
                                 for (String id : friends_IdList) {
-                                    postRef.child(id).child(moment_id).setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    postRef.child(id).child(post_id).setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            usersPostRef.child(moment_id).setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            usersPostRef.child(post_id).setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
                                                 }
@@ -273,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     });
                                 }
-                                allPostsRef.child(moment_id).setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                allPostsRef.child(post_id).setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Toast.makeText(MainActivity.this, "Пост удалён", Toast.LENGTH_SHORT).show();
@@ -291,7 +285,7 @@ public class MainActivity extends AppCompatActivity {
                 });
 
 
-                allPostsRef.child(moment_id).addValueEventListener(new ValueEventListener() {
+                allPostsRef.child(post_id).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
@@ -309,10 +303,10 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(View v) {
 
                                 if (liked.equals("false")) {
-                                    postRef.child(Uid).child(moment_id).child("liked").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    postRef.child(Uid).child(post_id).child("liked").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            allPostsRef.child(moment_id).child("likes").setValue(likes + 1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            allPostsRef.child(post_id).child("likes").setValue(likes + 1).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
 //                                                    Toast.makeText(MainActivity.this, "Liked", Toast.LENGTH_SHORT).show();
@@ -321,10 +315,10 @@ public class MainActivity extends AppCompatActivity {
                                         }
                                     });
                                 } else {
-                                    postRef.child(Uid).child(moment_id).child("liked").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    postRef.child(Uid).child(post_id).child("liked").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            allPostsRef.child(moment_id).child("likes").setValue(likes - 1).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            allPostsRef.child(post_id).child("likes").setValue(likes - 1).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                 @Override
                                                 public void onSuccess(Void aVoid) {
 //                                                    Toast.makeText(MainActivity.this, "Unliked", Toast.LENGTH_SHORT).show();
@@ -344,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-                allPostsRef.child(moment_id).addListenerForSingleValueEvent(new ValueEventListener() {
+                allPostsRef.child(post_id).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(final DataSnapshot dataSnapshot) {
                         if (dataSnapshot.child("type").getValue().toString().equals("text")) {
@@ -369,23 +363,24 @@ public class MainActivity extends AppCompatActivity {
                 });
 
 
-//                holder.commentsButton.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        Intent commentIntent = new Intent(MainActivity.this,CommentsActivity.class);
-//                        commentIntent.putExtra("moment_id",moment_id);
-//                        commentIntent.putExtra("name",By);
-//                        commentIntent.putExtra("time",momentposttime);
-//                        startActivity(commentIntent);
-//                    }
-//                });
+                holder.post_comment_button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+
+                        Intent commentIntent = new Intent(MainActivity.this,CommentsActivity.class);
+                        commentIntent.putExtra("post_id",post_id);
+                        commentIntent.putExtra("name",By);
+                        commentIntent.putExtra("time",postTime);
+                        startActivity(commentIntent);
+                    }
+                });
 
                 holder.user_image.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
                         if (By.equals(Uid)) {
-                            Intent profIntent = new Intent(MainActivity.this, ProfileActivity.class);
+                            Intent profIntent = new Intent(MainActivity.this, ViewOtherProfileActivity.class);
                             profIntent.putExtra("userKey", By);
                             startActivity(profIntent);
                         } else {
@@ -398,7 +393,7 @@ public class MainActivity extends AppCompatActivity {
                 });
 
 
-                allPostsRef.child(moment_id).child("comments").addValueEventListener(new ValueEventListener() {
+                allPostsRef.child(post_id).child("comments").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         holder.setCommentsCount(((int) dataSnapshot.getChildrenCount()));
