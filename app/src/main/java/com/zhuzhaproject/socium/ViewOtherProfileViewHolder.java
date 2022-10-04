@@ -16,7 +16,7 @@ public class ViewOtherProfileViewHolder extends RecyclerView.ViewHolder {
     public ViewOtherProfileViewHolder(@NonNull View itemView) {
         super(itemView);
         profileImageUrl = itemView.findViewById(R.id.profileImage);
-        username = itemView.findViewById(R.id.username);
+        username = itemView.findViewById(R.id.user_name);
         profession = itemView.findViewById(R.id.profession);
     }
 }

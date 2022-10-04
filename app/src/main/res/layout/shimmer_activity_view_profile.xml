@@ -202,7 +202,7 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
-                            android:id="@+id/username"
+                            android:id="@+id/user_name"
                             android:layout_width="55dp"
                             android:layout_height="16dp"
                             android:layout_marginTop="4dp"

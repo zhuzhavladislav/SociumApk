@@ -16,7 +16,7 @@ public class FindFriendViewHolder extends RecyclerView.ViewHolder {
     public FindFriendViewHolder(@NonNull View itemView) {
         super(itemView);
         profileImage=itemView.findViewById(R.id.profileImage);
-        username=itemView.findViewById(R.id.username);
+        username=itemView.findViewById(R.id.user_name);
         profession=itemView.findViewById(R.id.profession);
     }
 }

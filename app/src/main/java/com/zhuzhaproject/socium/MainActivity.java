@@ -125,68 +125,13 @@ public class MainActivity extends AppCompatActivity {
         });
         friends_IdList.add(Uid);
 
-//        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-//            @Override
-//            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-//                super.onScrolled(recyclerView, dx, dy);
-//                y = dy;
-//            }
-//
-//            @Override
-//            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-//                super.onScrollStateChanged(recyclerView, newState);
-//                if (recyclerView.SCROLL_STATE_SETTLING == newState)
-//                    if (y > 0) {
-//
-//                        if (btnCreatePost.getVisibility() != View.GONE) {
-//                            YoYo.with(Techniques.FadeOutUp)
-//                                    .duration(300)
-//                                    .playOn(btnCreatePost);
-//                            YoYo.with(Techniques.FadeOutUp)
-//                                    .duration(300)
-//                                    .playOn(editIcon);
-//                            YoYo.with(Techniques.FadeOutUp)
-//                                    .duration(300)
-//                                    .playOn(cardView);
-//                            new Handler().postDelayed(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    btnCreatePost.setVisibility(View.GONE);
-//                                    editIcon.setVisibility(View.GONE);
-//                                    cardView.setVisibility(View.GONE);
-//                                }
-//                            }, 300); //Time in milisecond
-//                        }
-//
-//                    } else if (y < 0) {
-//                        if (btnCreatePost.getVisibility() != View.VISIBLE) {
-//                            YoYo.with(Techniques.FadeInDown)
-//                                    .duration(400)
-//                                    .playOn(btnCreatePost);
-//                            YoYo.with(Techniques.FadeInDown)
-//                                    .duration(400)
-//                                    .playOn(editIcon);
-//                            YoYo.with(Techniques.FadeInDown)
-//                                    .duration(400)
-//                                    .playOn(cardView);
-//                            btnCreatePost.setVisibility(View.VISIBLE);
-//                            editIcon.setVisibility(View.VISIBLE);
-//                            cardView.setVisibility(View.VISIBLE);
-//                        }
-//
-//                    }
-//            }
-//
-//        });
-
-
         //Toolbar
         addFriends = (ImageButton) findViewById(R.id.toolbar_addFriends);
         createPost = (ImageButton) findViewById(R.id.toolbar_creatPost);
         profileImage = (CircleImageView) findViewById(R.id.toolbar_profile);
         logo = (ImageView) findViewById(R.id.toolbar_logo);
 
-        //logo on long click listener
+        //toolbar logo on long click listener
         logo.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -197,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //toolbar createpost on click listener
         createPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -205,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        //addfriends on click listener
+        //toolbar addfriends on click listener
         addFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -291,24 +237,24 @@ public class MainActivity extends AppCompatActivity {
                 final String liked = model.getLiked();
 
                 GetTimeAgo gta = new GetTimeAgo();
-                final String momentposttime = gta.getTimeAgo(timestamp);
-                holder.setTime(momentposttime);
+                final String postTime = gta.getTimeAgo(timestamp);
+                holder.setPostTime(postTime);
 
                 final String moment_id = getRef(position).getKey();
 
                 if (By.equals(Uid)) {
-                    holder.mom_delete.setVisibility(View.VISIBLE);
+                    holder.post_item_delete.setVisibility(View.VISIBLE);
                 } else {
-                    holder.mom_delete.setVisibility(View.GONE);
+                    holder.post_item_delete.setVisibility(View.GONE);
                 }
 
                 if (liked.equals("true"))
-                    holder.likes_but.setBackgroundResource(R.drawable.ic_like_pressed);
+                    holder.post_like_image.setBackgroundResource(R.drawable.ic_like_pressed);
                 else
-                    holder.likes_but.setBackgroundResource(R.drawable.ic_like);
+                    holder.post_like_image.setBackgroundResource(R.drawable.ic_like);
 
 
-                holder.mom_delete.setOnClickListener(new View.OnClickListener() {
+                holder.post_item_delete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
@@ -356,9 +302,9 @@ public class MainActivity extends AppCompatActivity {
                             llikes = 0;
 
                         final int likes = llikes;
-                        holder.setLikes(likes);
+                        holder.setLikesCount(likes);
 
-                        holder.likeButton.setOnClickListener(new View.OnClickListener() {
+                        holder.post_like_button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
 
@@ -402,17 +348,17 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(final DataSnapshot dataSnapshot) {
                         if (dataSnapshot.child("type").getValue().toString().equals("text")) {
-                            holder.setText(dataSnapshot.child("postDesc").getValue().toString());
-                            holder.moment_image.setVisibility(View.GONE);
+                            holder.setPostDescription(dataSnapshot.child("postDesc").getValue().toString());
+                            holder.post_image.setVisibility(View.GONE);
                         } else {
-                            holder.moment_image.setVisibility(View.VISIBLE);
-                            holder.setText(dataSnapshot.child("postDesc").getValue().toString());
-                            holder.setImage(dataSnapshot.child("image").getValue().toString());
+                            holder.post_image.setVisibility(View.VISIBLE);
+                            holder.setPostDescription(dataSnapshot.child("postDesc").getValue().toString());
+                            holder.setPostImage(dataSnapshot.child("image").getValue().toString());
                         }
                         if (dataSnapshot.child("postDesc").getValue().toString().equals("")) {
-                            holder.mom_text_item.setVisibility(View.GONE);
+                            holder.post_description.setVisibility(View.GONE);
                         } else {
-                            holder.mom_text_item.setVisibility(View.VISIBLE);
+                            holder.post_description.setVisibility(View.VISIBLE);
                         }
                     }
 
@@ -434,7 +380,7 @@ public class MainActivity extends AppCompatActivity {
 //                    }
 //                });
 
-                holder.userDp.setOnClickListener(new View.OnClickListener() {
+                holder.user_image.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
 
@@ -474,8 +420,8 @@ public class MainActivity extends AppCompatActivity {
                         username = dataSnapshot.child("username").getValue().toString();
                         String profileImage = dataSnapshot.child("profileImage").getValue().toString();
 
-                        holder.setName(username);
-                        holder.setDp(profileImage, MainActivity.this);
+                        holder.setUserName(username);
+                        holder.setUserImage(profileImage);
 
 
                     }
@@ -491,7 +437,7 @@ public class MainActivity extends AppCompatActivity {
             @NonNull
             @Override
             public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_post2, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_post, parent, false);
                 return new MyViewHolder(view);
             }
         };
