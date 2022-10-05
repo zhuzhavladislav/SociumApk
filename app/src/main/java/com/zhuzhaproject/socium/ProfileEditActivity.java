@@ -161,6 +161,13 @@ public class ProfileEditActivity extends AppCompatActivity {
             mLoadingBar.setTitle("Настройка профиля");
             mLoadingBar.setCanceledOnTouchOutside(false);
             mLoadingBar.show();
+            HashMap hashMap=new HashMap();
+            hashMap.put("username", username);
+            hashMap.put("city", city);
+            hashMap.put("country", country);
+            hashMap.put("profession", profession);
+            hashMap.put("status", status);
+            hashMap.put("device_token", FirebaseInstanceId.getInstance().getToken());
             if(imageProfileUri!=null){
                 StorageRef.child(mUser.getUid()).putFile(imageProfileUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -170,24 +177,12 @@ public class ProfileEditActivity extends AppCompatActivity {
                             StorageRef.child(mUser.getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
-                                    HashMap hashMap=new HashMap();
-                                    hashMap.put("username", username);
-                                    hashMap.put("city", city);
-                                    hashMap.put("country", country);
-                                    hashMap.put("profession", profession);
-                                    hashMap.put("status", status);
                                     hashMap.put("profileImage", uri.toString());
-                                    hashMap.put("device_token", FirebaseInstanceId.getInstance().getToken());
-
-
                                     mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
                                         @Override
                                         public void onSuccess(Object o) {
                                             mLoadingBar.dismiss();
                                             Toast.makeText(ProfileEditActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
-//                                            Intent intent=new Intent(ProfileEditActivity.this, MainActivity.class);
-//                                            intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-//                                            startActivity(intent);
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
@@ -202,20 +197,11 @@ public class ProfileEditActivity extends AppCompatActivity {
                     }
                 });
             } else if (profileImageUrl!=null && profileImageUrl!="") {
-                HashMap hashMap=new HashMap();
-                hashMap.put("username", username);
-                hashMap.put("city", city);
-                hashMap.put("country", country);
-                hashMap.put("profession", profession);
-                hashMap.put("status", status);
                 mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
                     @Override
                     public void onSuccess(Object o) {
                         mLoadingBar.dismiss();
                         Toast.makeText(ProfileEditActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
-//                        Intent intent=new Intent(ProfileEditActivity.this, MainActivity.class);
-//                        intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-//                        startActivity(intent);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
