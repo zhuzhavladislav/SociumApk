@@ -2,6 +2,9 @@ package com.zhuzhaproject.socium;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.RenderEffect;
+import android.graphics.Shader;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -10,17 +13,18 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -45,8 +49,9 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ProfileActivity extends AppCompatActivity {
     Toolbar toolbar;
     CircleImageView profileImageView;
+    ImageView profile_cover;
     TextView outputUsername, outputLocation, outputProfession, outputStatus, friendsCounter;
-    String profileImageUrl, username, city, country, profession, status;
+    String profileImageUrl, username, city, country, profession, status, cover;
     Button btnEdit, btnMsg, btnPerform, btnDecline;
 
     String CurrentState = "nothing_happen";
@@ -82,6 +87,7 @@ public class ProfileActivity extends AppCompatActivity {
         outputProfession = findViewById(R.id.outputProfession);
         outputStatus = findViewById(R.id.outputStatus);
         friendsCounter = findViewById(R.id.friendCounter);
+        profile_cover = findViewById(R.id.profile_cover);
 
         userID = getIntent().getStringExtra("userKey");
 
@@ -476,16 +482,27 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void LoadUser() {
         mUserRef.addValueEventListener(new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.S)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-
                     profileImageUrl = snapshot.child("profileImage").getValue().toString();
                     username = snapshot.child("username").getValue().toString();
                     city = snapshot.child("city").getValue().toString();
                     country = snapshot.child("country").getValue().toString();
                     profession = snapshot.child("profession").getValue().toString();
                     status = snapshot.child("status").getValue().toString();
+                    if (snapshot.hasChild("cover")){
+                        if(snapshot.child("cover").getValue().toString() != ""){
+                            cover = snapshot.child("cover").getValue().toString();
+                            Picasso.get().load(cover).into(profile_cover);
+                        }
+                        Picasso.get().load(profileImageUrl).into(profile_cover);
+                        profile_cover.setRenderEffect(RenderEffect.createBlurEffect(20, 20, Shader.TileMode.MIRROR));
+                    } else {
+                        Picasso.get().load(profileImageUrl).into(profile_cover);
+                        profile_cover.setRenderEffect(RenderEffect.createBlurEffect(20, 20, Shader.TileMode.MIRROR));
+                    }
 
                     Picasso.get().load(profileImageUrl).into(profileImageView);
                     outputLocation.setText("Место проживания: " + country + ", " + city);

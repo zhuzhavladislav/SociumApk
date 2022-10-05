@@ -9,6 +9,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -38,9 +39,11 @@ import java.util.HashMap;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ProfileEditActivity extends AppCompatActivity {
-    private static final int REQUEST_CODE = 101;
+    private static final int REQUEST_CODE1 = 101;
+    private static final int REQUEST_CODE2 = 102;
     Toolbar toolbar;
     CircleImageView profileImageView;
+    ImageView profileCover;
     EditText inputUsername, inputCountry, inputCity, inputProfession, inputStatus;
     Button btnUpdate;
     public String profileImageUrl;
@@ -48,7 +51,7 @@ public class ProfileEditActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseUser mUser;
     StorageReference StorageRef;
-    Uri imageUri;
+    Uri imageProfileUri, imageCoverUri;
     ProgressDialog mLoadingBar;
 
     @Override
@@ -61,6 +64,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("");
 
         profileImageView = findViewById(R.id.profile_image);
+        profileCover = findViewById(R.id.profile_cover);
         inputUsername = findViewById(R.id.inputUsername);
         inputCountry = findViewById(R.id.inputCountry);
         inputCity = findViewById(R.id.inputCity);
@@ -73,6 +77,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         mUser = mAuth.getCurrentUser();
         mUserRef = FirebaseDatabase.getInstance().getReference().child("Users");
         StorageRef = FirebaseStorage.getInstance().getReference().child("ProfileImage");
+
         //changing statusbar color
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             Window window = this.getWindow();
@@ -115,7 +120,16 @@ public class ProfileEditActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
-                startActivityForResult(intent, REQUEST_CODE);
+                startActivityForResult(intent, REQUEST_CODE1);
+            }
+        });
+
+        profileCover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(intent, REQUEST_CODE2);
             }
         });
 
@@ -147,8 +161,8 @@ public class ProfileEditActivity extends AppCompatActivity {
             mLoadingBar.setTitle("Настройка профиля");
             mLoadingBar.setCanceledOnTouchOutside(false);
             mLoadingBar.show();
-            if(imageUri!=null){
-                StorageRef.child(mUser.getUid()).putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            if(imageProfileUri!=null){
+                StorageRef.child(mUser.getUid()).putFile(imageProfileUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         if (task.isSuccessful())
@@ -187,7 +201,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                         }
                     }
                 });
-            } else if (imageUri==null && profileImageUrl!=null && profileImageUrl!="") {
+            } else if (profileImageUrl!=null && profileImageUrl!="") {
                 HashMap hashMap=new HashMap();
                 hashMap.put("username", username);
                 hashMap.put("city", city);
@@ -227,9 +241,13 @@ public class ProfileEditActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            imageUri = data.getData();
-            profileImageView.setImageURI(imageUri);
+        if (requestCode == REQUEST_CODE1 && resultCode == RESULT_OK && data != null) {
+            imageProfileUri = data.getData();
+            profileImageView.setImageURI(imageProfileUri);
+        }
+        if (requestCode == REQUEST_CODE2 && resultCode == RESULT_OK && data != null) {
+            imageCoverUri = data.getData();
+            profileCover.setImageURI(imageCoverUri);
         }
     }
 }
