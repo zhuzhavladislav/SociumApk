@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ProfileEditActivity"
+    tools:context=".ProfileEditOrSetupActivity"
     android:background="@color/color">
 
     <include
@@ -126,8 +126,8 @@
 
             <ImageView
                 android:id="@+id/profile_cover"
-                android:layout_width="170dp"
-                android:layout_height="55dp"
+                android:layout_width="168dp"
+                android:layout_height="56dp"
                 android:layout_marginEnd="24dp"
                 android:scaleType="centerCrop"
                 app:layout_constraintBottom_toBottomOf="@+id/profile_image"

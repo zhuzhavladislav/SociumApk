@@ -53,7 +53,7 @@ public class ChatActivity extends AppCompatActivity {
     FirebaseUser mUser;
     LinearLayoutManager layoutManager = new LinearLayoutManager(this);
     FirebaseRecyclerOptions<Chat>options;
-    FirebaseRecyclerAdapter<Chat, ChatMyViewHolder>adapter;
+    FirebaseRecyclerAdapter<Chat, ChatViewHolder>adapter;
 
 
 
@@ -113,9 +113,9 @@ public class ChatActivity extends AppCompatActivity {
 
     private void LoadSMS() {
         options=new FirebaseRecyclerOptions.Builder<Chat>().setQuery(smsRef.child(mUser.getUid()).child(OtherUserID), Chat.class).build();
-        adapter=new FirebaseRecyclerAdapter<Chat, ChatMyViewHolder>(options) {
+        adapter=new FirebaseRecyclerAdapter<Chat, ChatViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull ChatMyViewHolder holder, int position, @NonNull Chat model) {
+            protected void onBindViewHolder(@NonNull ChatViewHolder holder, int position, @NonNull Chat model) {
                 if (model.getUserID().equals(mUser.getUid()))
                 {
                     holder.firstUserText.setVisibility(View.GONE);
@@ -130,10 +130,10 @@ public class ChatActivity extends AppCompatActivity {
 
             @NonNull
             @Override
-            public ChatMyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public ChatViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view= LayoutInflater.from(parent.getContext()).inflate(R.layout.singleview_sms, parent,false);
 
-                return new ChatMyViewHolder(view);
+                return new ChatViewHolder(view);
             }
         };
         adapter.startListening();

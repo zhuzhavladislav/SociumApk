@@ -38,7 +38,7 @@ import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ProfileEditActivity extends AppCompatActivity {
+public class ProfileEditOrSetupActivity extends AppCompatActivity {
     private static final int REQUEST_CODE1 = 101;
     private static final int REQUEST_CODE2 = 102;
     Toolbar toolbar;
@@ -122,7 +122,7 @@ public class ProfileEditActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(ProfileEditActivity.this, "" + error.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProfileEditOrSetupActivity.this, "" + error.getMessage().toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -194,7 +194,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                                         @Override
                                         public void onSuccess(Object o) {
                                             mLoadingBar.dismiss();
-                                            Toast.makeText(ProfileEditActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(ProfileEditOrSetupActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
                                             startActivity(new Intent(getApplicationContext()
                                                     , MainActivity.class));
                                         }
@@ -202,7 +202,7 @@ public class ProfileEditActivity extends AppCompatActivity {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             mLoadingBar.dismiss();
-                                            Toast.makeText(ProfileEditActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(ProfileEditOrSetupActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                                         }
                                     });
                                 }
@@ -223,14 +223,14 @@ public class ProfileEditActivity extends AppCompatActivity {
                                         @Override
                                         public void onSuccess(Object o) {
                                             mLoadingBar.dismiss();
-                                            Toast.makeText(ProfileEditActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(ProfileEditOrSetupActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
                                             finish();
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
                                         public void onFailure(@NonNull Exception e) {
                                             mLoadingBar.dismiss();
-                                            Toast.makeText(ProfileEditActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(ProfileEditOrSetupActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                                         }
                                     });
                                 }
@@ -259,14 +259,14 @@ public class ProfileEditActivity extends AppCompatActivity {
                                                             @Override
                                                             public void onSuccess(Object o) {
                                                                 mLoadingBar.dismiss();
-                                                                Toast.makeText(ProfileEditActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                                                                Toast.makeText(ProfileEditOrSetupActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
                                                                 finish();
                                                             }
                                                         }).addOnFailureListener(new OnFailureListener() {
                                                             @Override
                                                             public void onFailure(@NonNull Exception e) {
                                                                 mLoadingBar.dismiss();
-                                                                Toast.makeText(ProfileEditActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                                                                Toast.makeText(ProfileEditOrSetupActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                                                             }
                                                         });
                                                     }
@@ -284,20 +284,20 @@ public class ProfileEditActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Object o) {
                         mLoadingBar.dismiss();
-                        Toast.makeText(ProfileEditActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ProfileEditOrSetupActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
                         finish();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         mLoadingBar.dismiss();
-                        Toast.makeText(ProfileEditActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ProfileEditOrSetupActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
 //                if (imageProfileUri == null && profileImageUrl == null && profileImageUrl.equals(""))
             } else {
                 mLoadingBar.dismiss();
-                Toast.makeText(ProfileEditActivity.this, "При создании профиля необходимо добавить изображение", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProfileEditOrSetupActivity.this, "При создании профиля необходимо добавить изображение", Toast.LENGTH_SHORT).show();
             }
         }
 

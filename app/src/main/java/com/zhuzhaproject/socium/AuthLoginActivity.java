@@ -21,7 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 
-public class LoginActivity extends AppCompatActivity {
+public class AuthLoginActivity extends AppCompatActivity {
 
 
     private TextInputLayout inputEmail, inputPassword;
@@ -48,7 +48,7 @@ public class LoginActivity extends AppCompatActivity {
         createNewAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                Intent intent = new Intent(AuthLoginActivity.this, AuthRegisterActivity.class);
                 startActivity(intent);
             }
         });
@@ -87,9 +87,9 @@ public class LoginActivity extends AppCompatActivity {
                         userref.child(Uid).child("device_token").setValue(token).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Toast.makeText(LoginActivity.this,"Вы успешно вошли", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(AuthLoginActivity.this,"Вы успешно вошли", Toast.LENGTH_SHORT).show();
 
-                                Intent intent = new Intent(LoginActivity.this, SplashActivity.class);
+                                Intent intent = new Intent(AuthLoginActivity.this, SplashActivity.class);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
                                 startActivity(intent);
                                 finish();
@@ -100,7 +100,7 @@ public class LoginActivity extends AppCompatActivity {
                     }else
                     {
                         mLoadingBar.dismiss();
-                        Toast.makeText(LoginActivity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AuthLoginActivity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
                     }
                 }
             });

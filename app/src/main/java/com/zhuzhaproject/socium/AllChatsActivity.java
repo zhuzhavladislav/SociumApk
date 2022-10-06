@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.SearchView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,18 +28,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
-import com.zhuzhaproject.socium.Utils.Chat;
 import com.zhuzhaproject.socium.Utils.Chats;
 
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-
-public class ChatUsersActivity extends AppCompatActivity {
+public class AllChatsActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     private String Uid;
@@ -57,7 +47,7 @@ public class ChatUsersActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat_users);
+        setContentView(R.layout.activity_all_chats);
 
         SearchView searchView = (SearchView) findViewById(R.id.searchView2);
 

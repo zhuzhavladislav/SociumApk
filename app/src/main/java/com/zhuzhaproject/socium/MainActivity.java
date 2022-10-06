@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 101;
     Uri imageUri;
     ProgressDialog mLoadingBar;
-    FirebaseRecyclerAdapter<Post, MyViewHolder> adapter;
+    FirebaseRecyclerAdapter<Post, MainViewHolder> adapter;
     FirebaseRecyclerOptions<Post> options;
 
     RecyclerView recyclerView;
@@ -181,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
                         return false;
                     case R.id.nav_chat:
                         startActivity(new Intent(getApplicationContext()
-                                , ChatUsersActivity.class));
+                                , AllChatsActivity.class));
                         overridePendingTransition(0, 0);
                         return false;
                     case R.id.nav_friends:
@@ -224,9 +224,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void LoadPost() {
         options = new FirebaseRecyclerOptions.Builder<Post>().setQuery(postRef.child(Uid), Post.class).build();
-        adapter = new FirebaseRecyclerAdapter<Post, MyViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<Post, MainViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NonNull Post model) {
+            protected void onBindViewHolder(@NonNull MainViewHolder holder, int position, @NonNull Post model) {
                 final String By = model.getBy();
                 long timestamp = model.getTimestamp();
                 final String liked = model.getLiked();
@@ -424,9 +424,9 @@ public class MainActivity extends AppCompatActivity {
 
             @NonNull
             @Override
-            public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public MainViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_post, parent, false);
-                return new MyViewHolder(view);
+                return new MainViewHolder(view);
             }
         };
         adapter.startListening();
@@ -466,7 +466,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void SendUserToLoginActivity() {
-        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+        Intent intent = new Intent(MainActivity.this, AuthLoginActivity.class);
         startActivity(intent);
         finish();
     }

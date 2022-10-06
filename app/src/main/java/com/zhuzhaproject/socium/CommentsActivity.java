@@ -161,10 +161,10 @@ public class CommentsActivity extends AppCompatActivity {
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             String inputTextSms = input_comment.getText().toString().trim();
-            if (inputTextSms.isEmpty()){
+            if (inputTextSms.isEmpty()) {
                 send_comment.setColorFilter(Color.rgb(154, 156, 164));
                 send_comment.setClickable(false);
-            }else{
+            } else {
                 send_comment.setColorFilter(Color.rgb(67, 205, 232));
                 send_comment.setClickable(true);
             }
@@ -263,15 +263,12 @@ public class CommentsActivity extends AppCompatActivity {
                 usersRef.child(By).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-
                         String username;
                         username = dataSnapshot.child("username").getValue().toString();
                         String userImage = dataSnapshot.child("profileImage").getValue().toString();
 
-                        holder.setName(username);
-                        holder.setDp(userImage);
-
-
+                        holder.setUsername(username);
+                        holder.setProfileImage(userImage);
                     }
 
                     @Override

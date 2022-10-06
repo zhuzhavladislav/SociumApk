@@ -83,7 +83,7 @@ public class AllUsersActivity extends AppCompatActivity {
                         return false;
                     case R.id.nav_chat:
                         startActivity(new Intent(getApplicationContext()
-                                , ChatUsersActivity.class));
+                                , AllChatsActivity.class));
                         overridePendingTransition(0,0);
                         return false;
                     case R.id.nav_friends:

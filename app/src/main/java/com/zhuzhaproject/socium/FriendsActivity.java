@@ -34,7 +34,7 @@ public class FriendsActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     FirebaseRecyclerOptions<Friends> options;
-    FirebaseRecyclerAdapter<Friends, UserViewHolder> adapter;
+    FirebaseRecyclerAdapter<Friends, FriendsViewHolder> adapter;
 
     DatabaseReference friendRef, mUserRef;
     FirebaseAuth mAuth;
@@ -87,7 +87,7 @@ public class FriendsActivity extends AppCompatActivity {
                         return false;
                     case R.id.nav_chat:
                         startActivity(new Intent(getApplicationContext()
-                                , ChatUsersActivity.class));
+                                , AllChatsActivity.class));
                         overridePendingTransition(0, 0);
                         return false;
                     case R.id.nav_friends:
@@ -119,16 +119,16 @@ public class FriendsActivity extends AppCompatActivity {
     private void LoadUsers(String s) {
         Query query = friendRef.child(mUser.getUid()).orderByChild("username").startAt(s).endAt(s + "\uf8ff");
         options = new FirebaseRecyclerOptions.Builder<Friends>().setQuery(query, Friends.class).build();
-        adapter = new FirebaseRecyclerAdapter<Friends, UserViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<Friends, FriendsViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull Friends model) {
+            protected void onBindViewHolder(@NonNull FriendsViewHolder holder, int position, @NonNull Friends model) {
                 final String friend_user_id = getRef(position).getKey();
                 mUserRef.child(friend_user_id).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         final String username = dataSnapshot.child("username").getValue().toString();
                         String profileImageUrl = dataSnapshot.child("profileImage").getValue().toString();
-                        String profession = dataSnapshot.child("profession").getValue().toString();
+                        String status = dataSnapshot.child("status").getValue().toString();
 //                        String status = dataSnapshot.child("status").getValue().toString();
 //                        if(dataSnapshot.hasChild("online")) {
 //                            String useronline = dataSnapshot.child("online").getValue().toString();
@@ -138,7 +138,7 @@ public class FriendsActivity extends AppCompatActivity {
 
                         Picasso.get().load(profileImageUrl).into(holder.profileImageUrl);
                         holder.username.setText(username);
-                        holder.status.setText(profession);
+                        holder.status.setText(status);
                         holder.itemView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -162,9 +162,9 @@ public class FriendsActivity extends AppCompatActivity {
 
             @NonNull
             @Override
-            public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public FriendsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_user, parent, false);
-                return new UserViewHolder(view);
+                return new FriendsViewHolder(view);
                 //return null;
             }
         };

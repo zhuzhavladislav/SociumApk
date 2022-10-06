@@ -17,7 +17,7 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class RegisterActivity extends AppCompatActivity {
+public class AuthRegisterActivity extends AppCompatActivity {
 
     private TextInputLayout inputEmail, inputPassword, inputConfirmPassword;
     Button btnRegister;
@@ -48,7 +48,7 @@ public class RegisterActivity extends AppCompatActivity {
         alreadyHaveAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
+                Intent intent = new Intent(AuthRegisterActivity.this, AuthLoginActivity.class);
                 startActivity(intent);
             }
         });
@@ -81,8 +81,8 @@ public class RegisterActivity extends AppCompatActivity {
                     if (task.isSuccessful())
                     {
                         mLoadingBar.dismiss();
-                        Toast.makeText(RegisterActivity.this,"Вы успешно зарегистрировались", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(RegisterActivity.this, ProfileEditActivity.class);
+                        Toast.makeText(AuthRegisterActivity.this,"Вы успешно зарегистрировались", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(AuthRegisterActivity.this, ProfileEditOrSetupActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
                         finish();
@@ -90,7 +90,7 @@ public class RegisterActivity extends AppCompatActivity {
                     else
                     {
                         mLoadingBar.dismiss();
-                        Toast.makeText(RegisterActivity.this,"Ошибка регистрации", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AuthRegisterActivity.this,"Ошибка регистрации", Toast.LENGTH_SHORT).show();
 
                     }
                 }

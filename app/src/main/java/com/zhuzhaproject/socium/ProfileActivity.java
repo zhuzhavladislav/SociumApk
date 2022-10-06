@@ -59,7 +59,7 @@ public class ProfileActivity extends AppCompatActivity {
     String Uid;
 
     FirebaseRecyclerOptions<Friends> options;
-    FirebaseRecyclerAdapter<Friends, UserViewHolder> adapter;
+    FirebaseRecyclerAdapter<Friends, FriendsViewHolder> adapter;
 
     DatabaseReference mUserRef, mUserRef2, requestRef, friendRef;
     FirebaseAuth mAuth;
@@ -126,7 +126,7 @@ public class ProfileActivity extends AppCompatActivity {
                         return false;
                     case R.id.nav_chat:
                         startActivity(new Intent(getApplicationContext()
-                                , ChatUsersActivity.class));
+                                , AllChatsActivity.class));
                         overridePendingTransition(0, 0);
                         return false;
                     case R.id.nav_friends:
@@ -156,7 +156,7 @@ public class ProfileActivity extends AppCompatActivity {
         btnEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ProfileActivity.this, ProfileEditActivity.class);
+                Intent intent = new Intent(ProfileActivity.this, ProfileEditOrSetupActivity.class);
                 startActivity(intent);
                 overridePendingTransition(0, 0);
             }
@@ -520,7 +520,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                 } else {
                     Toast.makeText(ProfileActivity.this, "Пользователь не существует", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(ProfileActivity.this, ProfileEditActivity.class);
+                    Intent intent = new Intent(ProfileActivity.this, ProfileEditOrSetupActivity.class);
                     startActivity(intent);
                     finish();
                 }
@@ -537,9 +537,9 @@ public class ProfileActivity extends AppCompatActivity {
     private void LoadUsers() {
         Query query = friendRef.child(userID).orderByChild("username");
         options = new FirebaseRecyclerOptions.Builder<Friends>().setQuery(query, Friends.class).build();
-        adapter = new FirebaseRecyclerAdapter<Friends, UserViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<Friends, FriendsViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull Friends model) {
+            protected void onBindViewHolder(@NonNull FriendsViewHolder holder, int position, @NonNull Friends model) {
                 final String friend_user_id = getRef(position).getKey();
                 mUserRef2.child(friend_user_id).addValueEventListener(new ValueEventListener() {
                     @Override
@@ -579,9 +579,9 @@ public class ProfileActivity extends AppCompatActivity {
 
             @NonNull
             @Override
-            public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public FriendsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_friend, parent, false);
-                return new UserViewHolder(view);
+                return new FriendsViewHolder(view);
                 //return null;
             }
         };

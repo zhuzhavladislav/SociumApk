@@ -11,14 +11,14 @@ import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class MyViewHolder extends RecyclerView.ViewHolder{
+public class MainViewHolder extends RecyclerView.ViewHolder{
     ImageView post_like_image, post_comment_image, post_item_delete;
     TextView post_description, post_comments_count, post_likes_count, user_name, post_time;
     Button post_like_button, post_comment_button;
     ImageView post_image;
     CircleImageView user_image;
 
-    public MyViewHolder(View itemView) {
+    public MainViewHolder(View itemView) {
         super(itemView);
         post_like_image = (ImageView) itemView.findViewById(R.id.post_like_image);
         post_comment_image = (ImageView) itemView.findViewById(R.id.post_comment_image);

@@ -388,7 +388,7 @@ public class CreatePostActivity extends AppCompatActivity {
     }
 
     private void SendUserToLoginActivity() {
-        Intent intent = new Intent(CreatePostActivity.this, LoginActivity.class);
+        Intent intent = new Intent(CreatePostActivity.this, AuthLoginActivity.class);
         startActivity(intent);
         finish();
     }
