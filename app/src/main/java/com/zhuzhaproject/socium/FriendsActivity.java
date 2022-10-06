@@ -81,13 +81,15 @@ public class FriendsActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.nav_home:
-                        startActivity(new Intent(getApplicationContext()
-                                , MainActivity.class));
+                        Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
+                        intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent1);
                         overridePendingTransition(0, 0);
                         return false;
                     case R.id.nav_chat:
-                        startActivity(new Intent(getApplicationContext()
-                                , AllChatsActivity.class));
+                        Intent intent2 = new Intent(getApplicationContext(), AllChatsActivity.class);
+                        intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent2);
                         overridePendingTransition(0, 0);
                         return false;
                     case R.id.nav_friends:

@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -60,8 +59,6 @@ public class MainActivity extends AppCompatActivity {
     CircleImageView profileImage;
     ImageView logo;
 
-    private static final int REQUEST_CODE = 101;
-    Uri imageUri;
     ProgressDialog mLoadingBar;
     FirebaseRecyclerAdapter<Post, MainViewHolder> adapter;
     FirebaseRecyclerOptions<Post> options;
@@ -74,12 +71,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         toolbar = findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
         mLoadingBar = new ProgressDialog(this);
-
         shimmerFrameLayout = findViewById(R.id.shimmerFrameLayout);
         recyclerView = findViewById(R.id.recyclerView);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
@@ -87,14 +82,10 @@ public class MainActivity extends AppCompatActivity {
         layoutManager.setReverseLayout(true);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setVisibility(View.INVISIBLE);
-
-
         friends_IdList = new ArrayList<String>();
-
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
         Uid = mAuth.getCurrentUser().getUid();
-
         postRef = FirebaseDatabase.getInstance().getReference().child("PostsToShow");
         userRef = FirebaseDatabase.getInstance().getReference().child("Users");
         allPostsRef = FirebaseDatabase.getInstance().getReference().child("AllPosts");
@@ -105,6 +96,50 @@ public class MainActivity extends AppCompatActivity {
         postRef.child(Uid).keepSynced(true);
         userRef.keepSynced(true);
 
+        // отключение анимации
+        overridePendingTransition(0, 0);
+        // нижняя навигация
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        // выбранный элемент в нижнем меню
+        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+        //changing statusbar color
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            Window window = this.getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.setStatusBarColor(this.getResources().getColor(R.color.white));
+            window.setNavigationBarColor(this.getResources().getColor(R.color.white));
+        }
+        //Toolbar
+        addFriends = (ImageButton) findViewById(R.id.toolbar_addFriends);
+        createPost = (ImageButton) findViewById(R.id.toolbar_creatPost);
+        profileImage = (CircleImageView) findViewById(R.id.toolbar_profile);
+        logo = (ImageView) findViewById(R.id.toolbar_logo);
+        //toolbar createpost on click listener
+        createPost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext()
+                        , CreatePostActivity.class));
+            }
+        });
+        //toolbar addfriends on click listener
+        addFriends.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext()
+                        , AllUsersActivity.class));
+            }
+        });
+        //profile image on click listener
+        profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent profIntent = new Intent(MainActivity.this, ProfileActivity.class);
+                profIntent.putExtra("userKey", Uid);
+                startActivity(profIntent);
+            }
+        });
         friendsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -120,58 +155,6 @@ public class MainActivity extends AppCompatActivity {
         });
         friends_IdList.add(Uid);
 
-        //Toolbar
-        addFriends = (ImageButton) findViewById(R.id.toolbar_addFriends);
-        createPost = (ImageButton) findViewById(R.id.toolbar_creatPost);
-        profileImage = (CircleImageView) findViewById(R.id.toolbar_profile);
-        logo = (ImageView) findViewById(R.id.toolbar_logo);
-
-        //toolbar logo on long click listener
-        logo.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                YoYo.with(Techniques.RotateIn)
-                        .duration(400)
-                        .playOn(logo);
-                return true;
-            }
-        });
-
-        //toolbar createpost on click listener
-        createPost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext()
-                        , CreatePostActivity.class));
-            }
-        });
-
-        //toolbar addfriends on click listener
-        addFriends.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext()
-                        , AllUsersActivity.class));
-            }
-        });
-
-        //profile image on click listener
-        profileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent profIntent = new Intent(MainActivity.this, ProfileActivity.class);
-                profIntent.putExtra("userKey", Uid);
-                startActivity(profIntent);
-            }
-        });
-
-        // отключение анимации
-        overridePendingTransition(0, 0);
-        // нижняя навигация
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        // выбранный элемент в нижнем меню
-        bottomNavigationView.setSelectedItemId(R.id.nav_home);
-
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -180,13 +163,15 @@ public class MainActivity extends AppCompatActivity {
                         overridePendingTransition(0, 0);
                         return false;
                     case R.id.nav_chat:
-                        startActivity(new Intent(getApplicationContext()
-                                , AllChatsActivity.class));
+                        Intent intent1 = new Intent(getApplicationContext(), AllChatsActivity.class);
+                        intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent1);
                         overridePendingTransition(0, 0);
                         return false;
                     case R.id.nav_friends:
-                        startActivity(new Intent(getApplicationContext()
-                                , FriendsActivity.class));
+                        Intent intent2 = new Intent(getApplicationContext(), FriendsActivity.class);
+                        intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent2);
                         overridePendingTransition(0, 0);
                         return false;
                 }
@@ -194,32 +179,30 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         LoadPost();
+    }
 
-
-        //changing statusbar color
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            Window window = this.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(this.getResources().getColor(R.color.white));
-            window.setNavigationBarColor(this.getResources().getColor(R.color.white));
-        }
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                recyclerView.setVisibility(View.VISIBLE);
-                YoYo.with(Techniques.FadeOut)
-                        .duration(100)
-                        .playOn(shimmerFrameLayout);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        shimmerFrameLayout.setVisibility(View.GONE);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (mUser == null) {
+            SendUserToLoginActivity();
+        } else {
+            userRef.child(mUser.getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        profileImageUrlV = dataSnapshot.child("profileImage").getValue().toString();
+                        usernameV = dataSnapshot.child("username").getValue().toString();
+                        Picasso.get().load(profileImageUrlV).into(profileImage);
                     }
-                }, 100);
-            }
-        }, 2000);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Toast.makeText(MainActivity.this, "Извините! Что-то пошло не так...", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
     }
 
     private void LoadPost() {
@@ -227,6 +210,23 @@ public class MainActivity extends AppCompatActivity {
         adapter = new FirebaseRecyclerAdapter<Post, MainViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull MainViewHolder holder, int position, @NonNull Post model) {
+
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        recyclerView.setVisibility(View.VISIBLE);
+                        YoYo.with(Techniques.FadeOut)
+                                .duration(100)
+                                .playOn(shimmerFrameLayout);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                shimmerFrameLayout.setVisibility(View.GONE);
+                            }
+                        }, 100);
+                    }
+                }, 1000);
+
                 final String By = model.getBy();
                 long timestamp = model.getTimestamp();
                 final String liked = model.getLiked();
@@ -281,7 +281,6 @@ public class MainActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int which) {
                             }
                         }).show();
-
                     }
                 });
 
@@ -298,7 +297,6 @@ public class MainActivity extends AppCompatActivity {
 
                         final int likes = llikes;
                         holder.setLikesCount(likes);
-
                         holder.post_like_button.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -327,16 +325,13 @@ public class MainActivity extends AppCompatActivity {
                                             });
                                         }
                                     });
-
                                 }
                             }
                         });
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
+                    public void onCancelled(DatabaseError databaseError) { }
                 });
 
                 allPostsRef.child(post_id).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -358,16 +353,12 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
+                    public void onCancelled(DatabaseError databaseError) { }
                 });
-
 
                 holder.post_comment_button.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
                         Intent commentIntent = new Intent(MainActivity.this, CommentsActivity.class);
                         commentIntent.putExtra("post_id", post_id);
                         commentIntent.putExtra("name", By);
@@ -385,41 +376,29 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-
                 allPostsRef.child(post_id).child("comments").addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         holder.setCommentsCount(((int) dataSnapshot.getChildrenCount()));
-
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
+                    public void onCancelled(DatabaseError databaseError) { }
                 });
-
 
                 userRef.child(By).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-
                         String username;
                         username = dataSnapshot.child("username").getValue().toString();
                         String profileImage = dataSnapshot.child("profileImage").getValue().toString();
-
                         holder.setUserName(username);
                         holder.setUserImage(profileImage);
-
-
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
+                    public void onCancelled(DatabaseError databaseError) { }
                 });
-
             }
 
             @NonNull
@@ -428,42 +407,14 @@ public class MainActivity extends AppCompatActivity {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_post, parent, false);
                 return new MainViewHolder(view);
             }
+
         };
         adapter.startListening();
         recyclerView.setAdapter(adapter);
+
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            imageUri = data.getData();
-        }
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (mUser == null) {
-            SendUserToLoginActivity();
-        } else {
-            userRef.child(mUser.getUid()).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        profileImageUrlV = dataSnapshot.child("profileImage").getValue().toString();
-                        usernameV = dataSnapshot.child("username").getValue().toString();
-                        Picasso.get().load(profileImageUrlV).into(profileImage);
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(MainActivity.this, "Извините! Что-то пошло не так...", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-    }
 
     private void SendUserToLoginActivity() {
         Intent intent = new Intent(MainActivity.this, AuthLoginActivity.class);

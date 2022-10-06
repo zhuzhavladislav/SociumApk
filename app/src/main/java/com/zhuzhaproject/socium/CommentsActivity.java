@@ -9,6 +9,8 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -81,6 +83,20 @@ public class CommentsActivity extends AppCompatActivity {
 
         userpostsRef = FirebaseDatabase.getInstance().getReference().child("UsersPost");
         allpostsRef = FirebaseDatabase.getInstance().getReference().child("AllPosts");
+
+
+        // отключение анимации
+        overridePendingTransition(0, 0);
+
+        //changing statusbar color
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            Window window = this.getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.setStatusBarColor(this.getResources().getColor(R.color.white));
+            window.setNavigationBarColor(this.getResources().getColor(R.color.white));
+        }
+
 
         allpostsRef.child(post_id).addValueEventListener(new ValueEventListener() {
             @Override

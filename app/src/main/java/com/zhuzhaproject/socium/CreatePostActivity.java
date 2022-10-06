@@ -37,15 +37,12 @@ import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 import com.yalantis.ucrop.UCrop;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import id.zelory.compressor.Compressor;
 
 public class CreatePostActivity extends AppCompatActivity {
     int n = 0;
@@ -73,7 +70,6 @@ public class CreatePostActivity extends AppCompatActivity {
 
     EditText inputPostDesc;
     private static final int REQUEST_CODE = 101;
-    private final String SAMPLE_CROPPED_IMG_NAME = "SampleCropImg";
     Uri imageUri, imageUriResultCrop;
 
     ProgressDialog mLoadingBar;
@@ -200,12 +196,6 @@ public class CreatePostActivity extends AppCompatActivity {
         } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK) {
             imageUriResultCrop = UCrop.getOutput(data);
             if (imageUriResultCrop != null) {
-                File image_file = new File(imageUriResultCrop.getPath());
-                try {
-                    compressedImageBitmap = new Compressor(this).setMaxHeight(800).setMaxWidth(800).setQuality(2).compressToBitmap(image_file);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
                 addImagePost.setImageURI(imageUriResultCrop);
                 sendImagePost.setColorFilter(Color.rgb(67, 205, 232));
                 sendImagePost.setClickable(true);
@@ -215,19 +205,19 @@ public class CreatePostActivity extends AppCompatActivity {
     }
 
     private void startCrop(@NonNull Uri uri) {
-        String destinationFileName = SAMPLE_CROPPED_IMG_NAME;
+        String destinationFileName = "postCropImg";
         destinationFileName += ".jpg";
 
         UCrop uCrop = UCrop.of(uri, Uri.fromFile(new File(getCacheDir(), destinationFileName)));
         uCrop.withAspectRatio(1, 1);
-        uCrop.withMaxResultSize(450, 450);
+        uCrop.withMaxResultSize(1000, 1000);
         uCrop.withOptions(getCropOptions());
         uCrop.start(CreatePostActivity.this);
     }
 
     private UCrop.Options getCropOptions() {
         UCrop.Options options = new UCrop.Options();
-        options.setCompressionQuality(100);
+        options.setCompressionQuality(60);
 
         //CompressType
         //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
@@ -254,7 +244,6 @@ public class CreatePostActivity extends AppCompatActivity {
         DatabaseReference userpost_push = allPostsRef.push();
         final String push_id = userpost_push.getKey();
 
-        StorageReference posts_image_ref = mStorageref.child("Posts").child(Uid).child(push_id);
         String postDesc = inputPostDesc.getText().toString();
         if (imageUriResultCrop == null && postDesc.isEmpty()) {
             inputPostDesc.setError("Необходимо прикрепить изображение или написать описание");
@@ -297,14 +286,7 @@ public class CreatePostActivity extends AppCompatActivity {
                 });
 
             } else {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                compressedImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                image_data = baos.toByteArray();
-
-
-                UploadTask uploadTask = posts_image_ref.putBytes(image_data);
-
-                uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                mStorageref.child("Posts").child(Uid).child(push_id).putFile(imageUriResultCrop).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         if (task.isSuccessful()) {

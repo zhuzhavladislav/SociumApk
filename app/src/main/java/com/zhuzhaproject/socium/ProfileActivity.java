@@ -7,7 +7,6 @@ import android.graphics.Shader;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -31,7 +30,6 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -111,33 +109,33 @@ public class ProfileActivity extends AppCompatActivity {
         // отключение анимации
         overridePendingTransition(0, 0);
         // нижняя навигация
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        // выбранный элемент в нижнем меню
-        bottomNavigationView.setSelectedItemId(R.id.nav_home);
-
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.nav_home:
-                        startActivity(new Intent(getApplicationContext()
-                                , MainActivity.class));
-                        overridePendingTransition(0, 0);
-                        return false;
-                    case R.id.nav_chat:
-                        startActivity(new Intent(getApplicationContext()
-                                , AllChatsActivity.class));
-                        overridePendingTransition(0, 0);
-                        return false;
-                    case R.id.nav_friends:
-                        startActivity(new Intent(getApplicationContext()
-                                , FriendsActivity.class));
-                        overridePendingTransition(0, 0);
-                        return false;
-                }
-                return false;
-            }
-        });
+//        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+//        // выбранный элемент в нижнем меню
+//        bottomNavigationView.setSelectedItemId(R.id.nav_home);
+//
+//        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//                switch (item.getItemId()) {
+//                    case R.id.nav_home:
+//                        startActivity(new Intent(getApplicationContext()
+//                                , MainActivity.class));
+//                        overridePendingTransition(0, 0);
+//                        return false;
+//                    case R.id.nav_chat:
+//                        startActivity(new Intent(getApplicationContext()
+//                                , AllChatsActivity.class));
+//                        overridePendingTransition(0, 0);
+//                        return false;
+//                    case R.id.nav_friends:
+//                        startActivity(new Intent(getApplicationContext()
+//                                , FriendsActivity.class));
+//                        overridePendingTransition(0, 0);
+//                        return false;
+//                }
+//                return false;
+//            }
+//        });
 
         CheckUserExistance(userID);
         LoadUser();

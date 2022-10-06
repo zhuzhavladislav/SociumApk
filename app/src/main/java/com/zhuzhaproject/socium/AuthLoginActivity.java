@@ -12,14 +12,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 public class AuthLoginActivity extends AppCompatActivity {
 
@@ -82,19 +80,27 @@ public class AuthLoginActivity extends AppCompatActivity {
                     if(task.isSuccessful())
                     {
                         mLoadingBar.dismiss();
-                        String Uid = mAuth.getCurrentUser().getUid();
-                        String token = FirebaseInstanceId.getInstance().getToken();
-                        userref.child(Uid).child("device_token").setValue(token).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Toast.makeText(AuthLoginActivity.this,"Вы успешно вошли", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(AuthLoginActivity.this,"Вы успешно вошли", Toast.LENGTH_SHORT).show();
 
-                                Intent intent = new Intent(AuthLoginActivity.this, SplashActivity.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
-                                finish();
-                            }
-                        });
+                        Intent intent = new Intent(AuthLoginActivity.this, SplashActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        finish();
+//                        String Uid = mAuth.getCurrentUser().getUid();
+//                        String token = FirebaseInstanceId.getInstance().getToken();
+//
+//
+//                        userref.child(Uid).child("device_token").setValue(token).addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                Toast.makeText(AuthLoginActivity.this,"Вы успешно вошли", Toast.LENGTH_SHORT).show();
+//
+//                                Intent intent = new Intent(AuthLoginActivity.this, SplashActivity.class);
+//                                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+//                                startActivity(intent);
+//                                finish();
+//                            }
+//                        });
 
 
                     }else

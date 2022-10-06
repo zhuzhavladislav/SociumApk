@@ -2,6 +2,7 @@ package com.zhuzhaproject.socium;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -33,7 +34,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
+import com.yalantis.ucrop.UCrop;
 
+import java.io.File;
 import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -46,13 +49,17 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
     CircleImageView profileImageView;
     ImageView profileCover;
     EditText inputUsername, inputCountry, inputCity, inputProfession, inputStatus;
+
+    Bitmap compressedProfileImageBitmap, compressedProfileCoverBitmap;
+    private byte[] image_profile_data, image_cover_data;
+
     Button btnUpdate;
     public String profileImageUrl;
     DatabaseReference mUserRef;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
     StorageReference StorageRefProfileImage, StorageRefCoverImage;
-    Uri imageProfileUri, imageCoverUri;
+    Uri imageProfileUri, imageCoverUri, imageProfileUriResultCrop, imageCoverUriResultCrop;
     ProgressDialog mLoadingBar;
     private String Uid;
     Integer state;
@@ -129,7 +136,7 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
         profileImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                state=0;
+                state = 0;
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
                 startActivityForResult(intent, REQUEST_CODE1);
@@ -139,7 +146,7 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
         profileCover.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                state=1;
+                state = 1;
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
                 startActivityForResult(intent, REQUEST_CODE2);
@@ -154,8 +161,47 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
         });
     }
 
-    private void UpdateData() {
+    private void startCropProfileImage(@NonNull Uri uri) {
+        String destinationFileName = "profileCroppedImage";
+        destinationFileName += ".jpg";
 
+        UCrop uCrop = UCrop.of(uri, Uri.fromFile(new File(getCacheDir(), destinationFileName)));
+        uCrop.withAspectRatio(1, 1);
+        uCrop.withMaxResultSize(500, 500);
+        uCrop.withOptions(getCropOptions());
+        uCrop.start(ProfileEditOrSetupActivity.this);
+    }
+    private void startCropProfileCover(@NonNull Uri uri) {
+        String destinationFileName = "profileCroppedCover";
+        destinationFileName += ".jpg";
+
+        UCrop uCrop = UCrop.of(uri, Uri.fromFile(new File(getCacheDir(), destinationFileName)));
+        uCrop.withAspectRatio(3, 1);
+        uCrop.withMaxResultSize(1344, 448);
+        uCrop.withOptions(getCropOptions());
+        uCrop.start(ProfileEditOrSetupActivity.this);
+    }
+
+    private UCrop.Options getCropOptions() {
+        UCrop.Options options = new UCrop.Options();
+        options.setCompressionQuality(60);
+        //CompressType
+        options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+
+        //UI
+        options.setHideBottomControls(false);
+        options.setFreeStyleCropEnabled(false);
+
+        //Colors
+        options.setStatusBarColor(getResources().getColor(R.color.white));
+        options.setToolbarColor(getResources().getColor(R.color.white));
+
+        options.setToolbarTitle("Обрезка изображения");
+
+        return options;
+    }
+
+    private void UpdateData() {
         String username = inputUsername.getText().toString();
         String city = inputCity.getText().toString();
         String country = inputCountry.getText().toString();
@@ -181,8 +227,8 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
             hashMap.put("profession", profession);
             hashMap.put("status", status);
             hashMap.put("device_token", FirebaseInstanceId.getInstance().getToken());
-            if (imageProfileUri != null && imageCoverUri == null) {
-                StorageRefProfileImage.child(Uid).putFile(imageProfileUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            if (imageProfileUriResultCrop != null && imageCoverUriResultCrop == null) {
+                StorageRefProfileImage.child(Uid).putFile(imageProfileUriResultCrop).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         if (task.isSuccessful()) {
@@ -210,8 +256,8 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
                         }
                     }
                 });
-            } else if (imageProfileUri == null && imageCoverUri != null) {
-                StorageRefCoverImage.child(Uid).putFile(imageCoverUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            } else if (imageProfileUriResultCrop == null && imageCoverUriResultCrop != null && profileImageUrl != null) {
+                StorageRefCoverImage.child(Uid).putFile(imageCoverUriResultCrop).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         if (task.isSuccessful()) {
@@ -238,8 +284,8 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
                         }
                     }
                 });
-            } else if (imageProfileUri != null && imageCoverUri != null) {
-                StorageRefProfileImage.child(Uid).putFile(imageProfileUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            } else if (imageProfileUriResultCrop != null && imageCoverUriResultCrop != null) {
+                StorageRefProfileImage.child(Uid).putFile(imageProfileUriResultCrop).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task1) {
                         if (task1.isSuccessful()) {
@@ -247,7 +293,7 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(Uri uri1) {
                                     hashMap.put("profileImage", uri1.toString());
-                                    StorageRefCoverImage.child(Uid).putFile(imageCoverUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                    StorageRefCoverImage.child(Uid).putFile(imageCoverUriResultCrop).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                         @Override
                                         public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task2) {
                                             if (task2.isSuccessful()) {
@@ -279,7 +325,7 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
                         }
                     }
                 });
-            } else if (profileImageUrl != null && !profileImageUrl.equals("")) {
+            } else if (imageProfileUriResultCrop == null && profileImageUrl != null) {
                 mUserRef.child(Uid).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
                     @Override
                     public void onSuccess(Object o) {
@@ -311,13 +357,27 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE1 && resultCode == RESULT_OK && state==0 && data != null) {
+        if (requestCode == REQUEST_CODE1 && resultCode == RESULT_OK && state == 0) {
             imageProfileUri = data.getData();
-            profileImageView.setImageURI(imageProfileUri);
+            if (imageProfileUri != null) {
+                startCropProfileImage(imageProfileUri);
+            }
+        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK && state == 0) {
+            imageProfileUriResultCrop = UCrop.getOutput(data);
+            if (imageProfileUriResultCrop != null) {
+                profileImageView.setImageURI(imageProfileUriResultCrop);
+            }
         }
-        if (requestCode == REQUEST_CODE2 && resultCode == RESULT_OK && state==1 && data != null) {
+        if (requestCode == REQUEST_CODE2 && resultCode == RESULT_OK && state == 1) {
             imageCoverUri = data.getData();
-            profileCover.setImageURI(imageCoverUri);
+            if (imageCoverUri != null) {
+                startCropProfileCover(imageCoverUri);
+            }
+        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK  && state == 1) {
+            imageCoverUriResultCrop = UCrop.getOutput(data);
+            if (imageCoverUriResultCrop != null) {
+                profileCover.setImageURI(imageCoverUriResultCrop);
+            }
         }
     }
 }
