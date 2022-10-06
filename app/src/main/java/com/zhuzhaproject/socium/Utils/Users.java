@@ -1,18 +1,15 @@
 package com.zhuzhaproject.socium.Utils;
 
 public class Users {
-    private String username, city, country, profession, profileImage, status;
+    private String username, profession, profileImage;
 
     public Users() {
     }
 
-    public Users(String username, String city, String country, String profession, String profileImage, String status) {
+    public Users(String username, String profession, String profileImage) {
         this.username = username;
-        this.city = city;
-        this.country = country;
         this.profession = profession;
         this.profileImage = profileImage;
-        this.status = status;
     }
 
     public String getUsername() {
@@ -21,22 +18,6 @@ public class Users {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
     }
 
     public String getProfession() {
@@ -53,13 +34,5 @@ public class Users {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 }

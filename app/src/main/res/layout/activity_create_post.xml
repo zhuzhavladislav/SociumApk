@@ -7,7 +7,7 @@
     tools:context=".CreatePostActivity">
 
     <EditText
-        android:id="@+id/inputPostDesc"
+        android:id="@+id/input_comment"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
@@ -28,19 +28,19 @@
         android:layout_width="0dp"
         android:layout_height="0.5dp"
         android:background="#e9eaec"
-        app:layout_constraintBottom_toBottomOf="@+id/inputPostDesc"
-        app:layout_constraintStart_toStartOf="@+id/inputPostDesc"
-        app:layout_constraintEnd_toEndOf="@+id/inputPostDesc"
+        app:layout_constraintBottom_toBottomOf="@+id/input_comment"
+        app:layout_constraintStart_toStartOf="@+id/input_comment"
+        app:layout_constraintEnd_toEndOf="@+id/input_comment"
         />
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/profileImage"
+        android:id="@+id/profile_image"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:layout_gravity="right"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:src="@drawable/profile"
+        android:src="@drawable/profile_image_empty"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -53,10 +53,10 @@
         android:text="Username"
         android:textColor="@color/black"
         android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="@+id/profileImage"
-        app:layout_constraintEnd_toStartOf="@+id/send_post_imageView"
-        app:layout_constraintStart_toEndOf="@+id/profileImage"
-        app:layout_constraintTop_toTopOf="@+id/profileImage" />
+        app:layout_constraintBottom_toBottomOf="@+id/profile_image"
+        app:layout_constraintEnd_toStartOf="@+id/send_comment"
+        app:layout_constraintStart_toEndOf="@+id/profile_image"
+        app:layout_constraintTop_toTopOf="@+id/profile_image" />
 
     <View
         android:id="@+id/view1"
@@ -64,19 +64,19 @@
         android:layout_height="0.5dp"
         android:layout_marginTop="10dp"
         android:background="#e9eaec"
-        app:layout_constraintStart_toStartOf="@+id/profileImage"
-        app:layout_constraintTop_toBottomOf="@+id/profileImage"
-        app:layout_constraintEnd_toEndOf="@+id/send_post_imageView"/>
+        app:layout_constraintStart_toStartOf="@+id/profile_image"
+        app:layout_constraintTop_toBottomOf="@+id/profile_image"
+        app:layout_constraintEnd_toEndOf="@+id/send_comment"/>
 
     <ImageView
-        android:id="@+id/send_post_imageView"
+        android:id="@+id/send_comment"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_marginEnd="16dp"
         android:clickable="false"
-        app:layout_constraintBottom_toBottomOf="@+id/profileImage"
+        app:layout_constraintBottom_toBottomOf="@+id/profile_image"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/profileImage"
+        app:layout_constraintTop_toTopOf="@+id/profile_image"
         app:srcCompat="@drawable/ic_accept" />
 
     <androidx.constraintlayout.widget.ConstraintLayout

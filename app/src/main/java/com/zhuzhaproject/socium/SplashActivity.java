@@ -56,7 +56,7 @@ public class SplashActivity extends AppCompatActivity {
                                 finish();
                             }else
                             {
-                                Intent intent=new Intent(SplashActivity.this, SetupActivity.class);
+                                Intent intent=new Intent(SplashActivity.this, ProfileEditOrSetupActivity.class);
                                 startActivity(intent);
                                 finish();
                             }
@@ -69,7 +69,7 @@ public class SplashActivity extends AppCompatActivity {
                     });
                 }else
                 {
-                    Intent intent=new Intent(SplashActivity.this, LoginActivity.class);
+                    Intent intent=new Intent(SplashActivity.this, AuthLoginActivity.class);
                     startActivity(intent);
                     finish();
                 }

@@ -1,11 +1,5 @@
 package com.zhuzhaproject.socium;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,25 +10,33 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.SearchView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
-
 import com.zhuzhaproject.socium.Utils.Friends;
 
 public class FriendsActivity extends AppCompatActivity {
     Toolbar toolbar;
 
-    FirebaseRecyclerOptions<Friends>options;
-    FirebaseRecyclerAdapter<Friends, ViewFriendViewHolder>adapter;
+    FirebaseRecyclerOptions<Friends> options;
+    FirebaseRecyclerAdapter<Friends, FriendsViewHolder> adapter;
 
-    DatabaseReference friendRef;
+    DatabaseReference friendRef, mUserRef;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
     RecyclerView recyclerView;
@@ -54,6 +56,7 @@ public class FriendsActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         friendRef = FirebaseDatabase.getInstance().getReference().child("Friends");
+        mUserRef = FirebaseDatabase.getInstance().getReference().child("Users");
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
 
@@ -67,7 +70,7 @@ public class FriendsActivity extends AppCompatActivity {
         }
 
         // отключение анимации
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
         // нижняя навигация
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         // выбранный элемент в нижнем меню
@@ -80,15 +83,15 @@ public class FriendsActivity extends AppCompatActivity {
                     case R.id.nav_home:
                         startActivity(new Intent(getApplicationContext()
                                 , MainActivity.class));
-                        overridePendingTransition(0,0);
+                        overridePendingTransition(0, 0);
                         return false;
                     case R.id.nav_chat:
                         startActivity(new Intent(getApplicationContext()
-                                , ChatUsersActivity.class));
-                        overridePendingTransition(0,0);
+                                , AllChatsActivity.class));
+                        overridePendingTransition(0, 0);
                         return false;
                     case R.id.nav_friends:
-                        overridePendingTransition(0,0);
+                        overridePendingTransition(0, 0);
                         return false;
                 }
                 return false;
@@ -113,42 +116,55 @@ public class FriendsActivity extends AppCompatActivity {
     }
 
 
-
     private void LoadUsers(String s) {
-        Query query = friendRef.child(mUser.getUid()).orderByChild("username").startAt(s).endAt(s+"\uf8ff");
+        Query query = friendRef.child(mUser.getUid()).orderByChild("username").startAt(s).endAt(s + "\uf8ff");
         options = new FirebaseRecyclerOptions.Builder<Friends>().setQuery(query, Friends.class).build();
-        adapter = new FirebaseRecyclerAdapter<Friends, ViewFriendViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<Friends, FriendsViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull ViewFriendViewHolder holder, int position, @NonNull Friends model) {
-                Picasso.get().load(model.getProfileImageUrl()).into(holder.profileImageUrl);
-                holder.username.setText(model.getUsername());
-                holder.profession.setText(model.getProfession());
-
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
+            protected void onBindViewHolder(@NonNull FriendsViewHolder holder, int position, @NonNull Friends model) {
+                final String friend_user_id = getRef(position).getKey();
+                mUserRef.child(friend_user_id).addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onClick(View v) {
-                        if (mUser.getUid().equals(getRef(position).getKey().toString()))
-                        {
-                            Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);;
-                            startActivity(intent);
-                        }else {
-                            Intent intent = new Intent(getApplicationContext(), ViewFriendActivity.class);
-                            intent.putExtra("userKey", getRef(position).getKey().toString());
-                            startActivity(intent);
-                        }
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final String username = dataSnapshot.child("username").getValue().toString();
+                        String profileImageUrl = dataSnapshot.child("profileImage").getValue().toString();
+                        String status = dataSnapshot.child("status").getValue().toString();
+//                        String status = dataSnapshot.child("status").getValue().toString();
+//                        if(dataSnapshot.hasChild("online")) {
+//                            String useronline = dataSnapshot.child("online").getValue().toString();
+//                            viewHolder.setUserOnline(useronline);
+//                        }
+//                        holder.setName(username);
+
+                        Picasso.get().load(profileImageUrl).into(holder.profileImageUrl);
+                        holder.username.setText(username);
+                        holder.status.setText(status);
+                        holder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                                intent.putExtra("userKey", getRef(position).getKey().toString());
+                                startActivity(intent);
+                            }
+                        });
+
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
                     }
                 });
+
 
             }
 
             @NonNull
             @Override
-            public ViewFriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_friend, parent, false);
-
-                return new ViewFriendViewHolder(view);
+            public FriendsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_user, parent, false);
+                return new FriendsViewHolder(view);
                 //return null;
             }
         };

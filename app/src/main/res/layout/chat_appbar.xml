@@ -12,7 +12,7 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/status"
+        android:id="@+id/textUnder"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:fontFamily="@font/sfpro_regular"
@@ -50,7 +50,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_gravity="right"
-        android:src="@drawable/profile2"
+        android:src="@drawable/profile_image_empty"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

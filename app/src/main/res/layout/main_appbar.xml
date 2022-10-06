@@ -1,35 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="?attr/actionBarSize"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/app_bar"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
     android:background="@color/white"
-    android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar"
-    android:id="@+id/app_bar">
+    android:theme="@style/Theme.AppCompat.DayNight.DarkActionBar">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageButton
+            android:id="@+id/toolbar_logo"
+            android:layout_width="50dp"
+            android:layout_height="30dp"
+            android:layout_gravity="left"
+            android:background="@drawable/logo"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageButton
+            android:id="@+id/toolbar_addFriends"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="right"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/ic_add_friend"
+            app:layout_constraintBottom_toBottomOf="@+id/toolbar_profile"
+            app:layout_constraintEnd_toStartOf="@+id/toolbar_profile"
+            app:layout_constraintTop_toTopOf="@+id/toolbar_profile" />
 
 
+        <ImageButton
+            android:id="@+id/toolbar_creatPost"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="right"
+            android:layout_marginEnd="20dp"
+            android:background="@drawable/ic_add_post"
+            app:layout_constraintBottom_toBottomOf="@+id/toolbar_addFriends"
+            app:layout_constraintEnd_toStartOf="@+id/toolbar_addFriends"
+            app:layout_constraintTop_toTopOf="@+id/toolbar_addFriends" />
 
-    <ImageButton
-        android:id="@+id/toolbar_addFriends"
-        android:layout_height="27dip"
-        android:layout_width="27dip"
-        android:layout_gravity="left"
-        android:layout_marginLeft="20dp"
-        android:background="@drawable/ic_add_friend" />
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/toolbar_profile"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
 
-    <ImageButton
-        android:id="@+id/toolbar_logo"
-        android:layout_height="30dp"
-        android:layout_width="50dp"
-        android:layout_gravity="center"
-        android:background="@drawable/logo" />
-
-
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/toolbar_profile"
-        android:layout_width="28dp"
-        android:layout_height="28dp"
-        android:layout_gravity="right"
-        android:layout_marginRight="20dp"
-        android:src="@drawable/profile2"/>
+            android:layout_gravity="right"
+            android:layout_marginEnd="20dp"
+            android:src="@drawable/profile_image_empty"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.appcompat.widget.Toolbar>
 

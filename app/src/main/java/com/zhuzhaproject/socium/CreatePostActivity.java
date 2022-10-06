@@ -29,25 +29,43 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
+import com.yalantis.ucrop.UCrop;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TimeZone;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
 
 public class CreatePostActivity extends AppCompatActivity {
-    int n=0;
+    int n = 0;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
-    DatabaseReference mUserRef, postRef, likeRef;
     String profileImageUrlV, usernameV;
+
+    private byte[] image_data;
+
+    private String Uid;
+    private DatabaseReference mUserRef;
+    private DatabaseReference allPostsRef;
+    private DatabaseReference postsToShowRef;
+    private DatabaseReference usersPostRef;
+    private DatabaseReference friendsRef;
+    private StorageReference mStorageref;
+
+    private ArrayList<String> friends_IdList;
+    //public String imageUrl;
+
 
     CircleImageView profileImage;
     ImageView addImagePost, sendImagePost;
@@ -55,9 +73,10 @@ public class CreatePostActivity extends AppCompatActivity {
 
     EditText inputPostDesc;
     private static final int REQUEST_CODE = 101;
-    Uri imageUri;
+    private final String SAMPLE_CROPPED_IMG_NAME = "SampleCropImg";
+    Uri imageUri, imageUriResultCrop;
+
     ProgressDialog mLoadingBar;
-    StorageReference postImageRef;
     TextView outputUsername;
 
     @Override
@@ -66,22 +85,46 @@ public class CreatePostActivity extends AppCompatActivity {
         setContentView(R.layout.activity_create_post);
 
         addImagePost = findViewById(R.id.addImagePost);
-        sendImagePost = findViewById(R.id.send_post_imageView);
-        inputPostDesc = findViewById(R.id.inputPostDesc);
+        sendImagePost = findViewById(R.id.send_comment);
+        inputPostDesc = findViewById(R.id.input_comment);
         mLoadingBar = new ProgressDialog(this);
 
-        profileImage = findViewById(R.id.profileImage);
+        profileImage = findViewById(R.id.profile_image);
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
         mUserRef = FirebaseDatabase.getInstance().getReference().child("Users");
-        postRef = FirebaseDatabase.getInstance().getReference().child("Posts");
-        likeRef = FirebaseDatabase.getInstance().getReference().child("Likes");
-        postImageRef = FirebaseStorage.getInstance().getReference().child("PostImages");
+        Uid = mAuth.getCurrentUser().getUid();
+
+        friends_IdList = new ArrayList<String>();
+        //imageUrl = new String();
+
+        allPostsRef = FirebaseDatabase.getInstance().getReference().child("AllPosts");
+        postsToShowRef = FirebaseDatabase.getInstance().getReference().child("PostsToShow");
+        usersPostRef = FirebaseDatabase.getInstance().getReference().child("UsersPost").child(Uid);
+        friendsRef = FirebaseDatabase.getInstance().getReference().child("Friends").child(Uid);
+
+        mStorageref = FirebaseStorage.getInstance().getReference();
 
         outputUsername = findViewById(R.id.outputUsername);
 
         inputPostDesc.addTextChangedListener(descTextWatcher);
+
+        friendsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    friends_IdList.add(ds.getKey());
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        friends_IdList.add(Uid);
+
         sendImagePost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,18 +136,24 @@ public class CreatePostActivity extends AppCompatActivity {
         addImagePost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
-                startActivityForResult(intent, REQUEST_CODE);
-                sendImagePost.setColorFilter(Color.rgb(67, 205, 232));
-                sendImagePost.setClickable(true);
-                n++;
+                if (imageUriResultCrop != null) {
+                    imageUriResultCrop = null;
+                    imageUri = null;
+                    addImagePost.setImageResource(R.drawable.ic_add_image);
+                    sendImagePost.setColorFilter(Color.rgb(154, 156, 164));
+                    sendImagePost.setClickable(false);
+                    n = 0;
+                } else {
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("image/*");
+                    startActivityForResult(intent, REQUEST_CODE);
+                }
             }
         });
 
 
         // отключение анимации
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
 
         //changing statusbar color
         if (android.os.Build.VERSION.SDK_INT >= 21) {
@@ -125,10 +174,10 @@ public class CreatePostActivity extends AppCompatActivity {
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             String inputTextSms = inputPostDesc.getText().toString().trim();
-            if (inputTextSms.isEmpty() && n==0){
+            if (inputTextSms.isEmpty() && n == 0) {
                 sendImagePost.setColorFilter(Color.rgb(154, 156, 164));
                 sendImagePost.setClickable(false);
-            }else{
+            } else {
                 sendImagePost.setColorFilter(Color.rgb(67, 205, 232));
                 sendImagePost.setClickable(true);
             }
@@ -143,93 +192,163 @@ public class CreatePostActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-
-
+        if (requestCode == REQUEST_CODE && resultCode == RESULT_OK) {
             imageUri = data.getData();
-            addImagePost.setImageURI(imageUri);
+            if (imageUri != null) {
+                startCrop(imageUri);
+            }
+        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK) {
+            imageUriResultCrop = UCrop.getOutput(data);
+            if (imageUriResultCrop != null) {
+                File image_file = new File(imageUriResultCrop.getPath());
+                try {
+                    compressedImageBitmap = new Compressor(this).setMaxHeight(800).setMaxWidth(800).setQuality(2).compressToBitmap(image_file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                addImagePost.setImageURI(imageUriResultCrop);
+                sendImagePost.setColorFilter(Color.rgb(67, 205, 232));
+                sendImagePost.setClickable(true);
+                n = 1;
+            }
         }
     }
 
-    private void AddPost() {
-        String postDesc = inputPostDesc.getText().toString();
-        if (imageUri == null && postDesc.isEmpty()){
-            inputPostDesc.setError("Необходимо прикрепить изображение или написать описание");
-        }else {
-            if (imageUri == null) {
-                //inputPostDesc.setError("Необходимо прикрепить изображение");
-                mLoadingBar.setTitle("Выкладываем публикацию");
-                mLoadingBar.setCanceledOnTouchOutside(false);
-                mLoadingBar.show();
+    private void startCrop(@NonNull Uri uri) {
+        String destinationFileName = SAMPLE_CROPPED_IMG_NAME;
+        destinationFileName += ".jpg";
 
-                Date date = new Date();
-                SimpleDateFormat formatter = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
-                formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-                String strDate = formatter.format(date);
-                HashMap hashMap = new HashMap();
-                hashMap.put("datePost", strDate);
-                hashMap.put("postImageUrl", "");
-                hashMap.put("postDesc", postDesc);
-                hashMap.put("userProfileImageUrl", profileImageUrlV);
-                hashMap.put("username", usernameV);
-                postRef.child(mUser.getUid() + strDate).updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener() {
+        UCrop uCrop = UCrop.of(uri, Uri.fromFile(new File(getCacheDir(), destinationFileName)));
+        uCrop.withAspectRatio(1, 1);
+        uCrop.withMaxResultSize(450, 450);
+        uCrop.withOptions(getCropOptions());
+        uCrop.start(CreatePostActivity.this);
+    }
+
+    private UCrop.Options getCropOptions() {
+        UCrop.Options options = new UCrop.Options();
+        options.setCompressionQuality(100);
+
+        //CompressType
+        //options.setCompressionFormat(Bitmap.CompressFormat.PNG);
+        //options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+
+        //UI
+        options.setHideBottomControls(false);
+        options.setFreeStyleCropEnabled(true);
+
+        //Colors
+        options.setStatusBarColor(getResources().getColor(R.color.white));
+        options.setToolbarColor(getResources().getColor(R.color.white));
+
+        options.setToolbarTitle("Обрезка изображения");
+
+        return options;
+    }
+
+    private void AddPost() {
+        mLoadingBar.setMessage("Публикация...");
+        mLoadingBar.setCanceledOnTouchOutside(false);
+        mLoadingBar.show();
+
+        DatabaseReference userpost_push = allPostsRef.push();
+        final String push_id = userpost_push.getKey();
+
+        StorageReference posts_image_ref = mStorageref.child("Posts").child(Uid).child(push_id);
+        String postDesc = inputPostDesc.getText().toString();
+        if (imageUriResultCrop == null && postDesc.isEmpty()) {
+            inputPostDesc.setError("Необходимо прикрепить изображение или написать описание");
+            mLoadingBar.dismiss();
+        } else {
+            if (imageUriResultCrop == null) {
+                final Map textmap = new HashMap();
+                textmap.put("type", "text");
+                textmap.put("timestamp", ServerValue.TIMESTAMP);
+                textmap.put("by", Uid);
+                textmap.put("postDesc", postDesc);
+                textmap.put("image", "");
+                textmap.put("likes", 0);
+
+                final Map timeby2 = new HashMap();
+                timeby2.put("timestamp", ServerValue.TIMESTAMP);
+                timeby2.put("by", Uid);
+                timeby2.put("liked", "false");
+
+                allPostsRef.child(push_id).setValue(textmap).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
-                    public void onComplete(@NonNull Task task) {
-                        if (task.isSuccessful()) {
-                            mLoadingBar.dismiss();
-                            Toast.makeText(CreatePostActivity.this, "Публикация добавлена", Toast.LENGTH_SHORT).show();
-                            addImagePost.setImageResource(R.drawable.ic_add_image);
-                            inputPostDesc.setText("");
-                            startActivity(new Intent(getApplicationContext()
-                                    , MainActivity.class));
-                        } else {
-                            mLoadingBar.dismiss();
-                            Toast.makeText(CreatePostActivity.this, "" + task.getException().toString(), Toast.LENGTH_SHORT).show();
+                    public void onSuccess(Void aVoid) {
+                        for (String id : friends_IdList) {
+                            postsToShowRef.child(id).child(push_id).setValue(timeby2).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    usersPostRef.child(push_id).setValue(timeby2).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(CreatePostActivity.this, "Успешно опубликовано", Toast.LENGTH_SHORT).show();
+                                            mLoadingBar.dismiss();
+                                            finish();
+
+                                        }
+                                    });
+                                }
+                            });
                         }
                     }
                 });
 
             } else {
-                mLoadingBar.setTitle("Выкладываем публикацию");
-                mLoadingBar.setCanceledOnTouchOutside(false);
-                mLoadingBar.show();
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                compressedImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                image_data = baos.toByteArray();
 
-                Date date = new Date();
-                SimpleDateFormat formatter = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
-                formatter.setTimeZone(TimeZone.getTimeZone("GMT"));
-                String strDate = formatter.format(date);
 
-                postImageRef.child(mUser.getUid() + strDate).putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                UploadTask uploadTask = posts_image_ref.putBytes(image_data);
+
+                uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         if (task.isSuccessful()) {
-                            postImageRef.child(mUser.getUid() + strDate).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            mStorageref.child("Posts").child(Uid).child(push_id).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
+                                    final Map imageMap = new HashMap();
+                                    imageMap.put("type", "image");
+                                    imageMap.put("timestamp", ServerValue.TIMESTAMP);
+                                    imageMap.put("by", Uid);
+                                    imageMap.put("postDesc", postDesc);
+                                    imageMap.put("image", uri.toString());
+                                    imageMap.put("likes", 0);
 
+                                    final Map timeBy = new HashMap();
+                                    timeBy.put("timestamp", ServerValue.TIMESTAMP);
+                                    timeBy.put("by", Uid);
+                                    timeBy.put("liked", "false");
 
-                                    HashMap hashMap = new HashMap();
-                                    hashMap.put("datePost", strDate);
-                                    hashMap.put("postImageUrl", uri.toString());
-                                    hashMap.put("postDesc", postDesc);
-                                    hashMap.put("userProfileImageUrl", profileImageUrlV);
-                                    hashMap.put("username", usernameV);
-                                    postRef.child(mUser.getUid() + strDate).updateChildren(hashMap).addOnCompleteListener(new OnCompleteListener() {
+                                    allPostsRef.child(push_id).setValue(imageMap).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
-                                        public void onComplete(@NonNull Task task) {
-                                            if (task.isSuccessful()) {
-                                                mLoadingBar.dismiss();
-                                                Toast.makeText(CreatePostActivity.this, "Публикация добавлена", Toast.LENGTH_SHORT).show();
-                                                addImagePost.setImageResource(R.drawable.ic_add_image);
-                                                inputPostDesc.setText("");
-                                                startActivity(new Intent(getApplicationContext()
-                                                        , MainActivity.class));
-                                            } else {
-                                                mLoadingBar.dismiss();
-                                                Toast.makeText(CreatePostActivity.this, "" + task.getException().toString(), Toast.LENGTH_SHORT).show();
+                                        public void onSuccess(Void aVoid) {
+                                            for (String id : friends_IdList) {
+                                                postsToShowRef.child(id).child(push_id).setValue(timeBy).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        usersPostRef.child(push_id).setValue(timeBy).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                Toast.makeText(CreatePostActivity.this, "Упешно опубликовано", Toast.LENGTH_SHORT).show();
+                                                                mLoadingBar.dismiss();
+                                                                finish();
+
+                                                            }
+                                                        });
+
+                                                    }
+                                                });
+
                                             }
+
                                         }
                                     });
+
                                 }
                             });
                         } else {
@@ -238,8 +357,6 @@ public class CreatePostActivity extends AppCompatActivity {
                         }
                     }
                 });
-
-
             }
         }
 
@@ -271,7 +388,7 @@ public class CreatePostActivity extends AppCompatActivity {
     }
 
     private void SendUserToLoginActivity() {
-        Intent intent = new Intent(CreatePostActivity.this, LoginActivity.class);
+        Intent intent = new Intent(CreatePostActivity.this, AuthLoginActivity.class);
         startActivity(intent);
         finish();
     }
