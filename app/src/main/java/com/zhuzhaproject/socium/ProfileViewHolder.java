@@ -11,12 +11,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class ProfileViewHolder extends RecyclerView.ViewHolder {
 
     CircleImageView profileImageUrl;
-    TextView username, profession;
+    TextView username, status;
 
     public ProfileViewHolder(@NonNull View itemView) {
         super(itemView);
         profileImageUrl = itemView.findViewById(R.id.profile_image);
         username = itemView.findViewById(R.id.user_name);
-        profession = itemView.findViewById(R.id.comment_time);
+        status = itemView.findViewById(R.id.status);
     }
 }

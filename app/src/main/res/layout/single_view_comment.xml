@@ -55,7 +55,7 @@
                 app:layout_constraintTop_toTopOf="@+id/profile_image" />
 
             <TextView
-                android:id="@+id/comment_time"
+                android:id="@+id/status"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"

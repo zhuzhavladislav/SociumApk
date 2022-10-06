@@ -21,9 +21,12 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 import com.zhuzhaproject.socium.Utils.Friends;
 
@@ -33,7 +36,7 @@ public class FriendsActivity extends AppCompatActivity {
     FirebaseRecyclerOptions<Friends> options;
     FirebaseRecyclerAdapter<Friends, ProfileViewHolder> adapter;
 
-    DatabaseReference friendRef;
+    DatabaseReference friendRef, mUserRef;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
     RecyclerView recyclerView;
@@ -53,6 +56,7 @@ public class FriendsActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         friendRef = FirebaseDatabase.getInstance().getReference().child("Friends");
+        mUserRef = FirebaseDatabase.getInstance().getReference().child("Users");
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
 
@@ -118,27 +122,48 @@ public class FriendsActivity extends AppCompatActivity {
         adapter = new FirebaseRecyclerAdapter<Friends, ProfileViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull ProfileViewHolder holder, int position, @NonNull Friends model) {
-                Picasso.get().load(model.getProfileImageUrl()).into(holder.profileImageUrl);
-                holder.username.setText(model.getUsername());
-                holder.profession.setText(model.getProfession());
-
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                final String friend_user_id = getRef(position).getKey();
+                mUserRef.child(friend_user_id).addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
-                        intent.putExtra("userKey", getRef(position).getKey().toString());
-                        startActivity(intent);
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        final String username = dataSnapshot.child("username").getValue().toString();
+                        String profileImageUrl = dataSnapshot.child("profileImage").getValue().toString();
+                        String profession = dataSnapshot.child("profession").getValue().toString();
+//                        String status = dataSnapshot.child("status").getValue().toString();
+//                        if(dataSnapshot.hasChild("online")) {
+//                            String useronline = dataSnapshot.child("online").getValue().toString();
+//                            viewHolder.setUserOnline(useronline);
+//                        }
+//                        holder.setName(username);
+
+                        Picasso.get().load(profileImageUrl).into(holder.profileImageUrl);
+                        holder.username.setText(username);
+                        holder.status.setText(profession);
+                        holder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                                intent.putExtra("userKey", getRef(position).getKey().toString());
+                                startActivity(intent);
+                            }
+                        });
+
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
                     }
                 });
+
 
             }
 
             @NonNull
             @Override
             public ProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_user, parent, false);
-
                 return new ProfileViewHolder(view);
                 //return null;
             }

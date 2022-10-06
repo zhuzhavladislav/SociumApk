@@ -33,7 +33,7 @@ public class ChatUsersActivity extends AppCompatActivity {
 
     private String Uid;
     FirebaseRecyclerOptions<Users> options;
-    FirebaseRecyclerAdapter<Users, FindFriendViewHolder> adapter;
+    FirebaseRecyclerAdapter<Users, AllUsersViewHolder> adapter;
 
     DatabaseReference mRef, messageRef;
     FirebaseAuth mAuth;
@@ -130,9 +130,9 @@ public class ChatUsersActivity extends AppCompatActivity {
         Query query= mRef.orderByChild("username").startAt(s).endAt(s+"\uf8ff");
 
         options = new FirebaseRecyclerOptions.Builder<Users>().setQuery(query, Users.class).build();
-        adapter = new FirebaseRecyclerAdapter<Users, FindFriendViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<Users, AllUsersViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull FindFriendViewHolder holder, int position, @NonNull Users model) {
+            protected void onBindViewHolder(@NonNull AllUsersViewHolder holder, int position, @NonNull Users model) {
                 if (mUser.getUid().equals(getRef(position).getKey().toString()))
                 {
                     holder.itemView.setVisibility(View.GONE);
@@ -155,11 +155,11 @@ public class ChatUsersActivity extends AppCompatActivity {
 
             @NonNull
             @Override
-            public FindFriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public AllUsersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_user, parent, false);
 
-                return new FindFriendViewHolder(view);
+                return new AllUsersViewHolder(view);
                 //return null;
             }
         };

@@ -27,11 +27,11 @@ import com.google.firebase.database.Query;
 import com.squareup.picasso.Picasso;
 import com.zhuzhaproject.socium.Utils.Users;
 
-public class FindFriendActivity extends AppCompatActivity {
+public class AllUsersActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     FirebaseRecyclerOptions<Users>options;
-    FirebaseRecyclerAdapter<Users, FindFriendViewHolder>adapter;
+    FirebaseRecyclerAdapter<Users, AllUsersViewHolder>adapter;
 
     DatabaseReference mUserRef;
     FirebaseAuth mAuth;
@@ -42,7 +42,7 @@ public class FindFriendActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_find_friend);
+        setContentView(R.layout.activity_all_users);
 
         SearchView searchView = (SearchView) findViewById(R.id.searchView2);
 
@@ -118,9 +118,9 @@ public class FindFriendActivity extends AppCompatActivity {
     private void LoadUsers(String s) {
         Query query= mUserRef.orderByChild("username").startAt(s).endAt(s+"\uf8ff");
         options = new FirebaseRecyclerOptions.Builder<Users>().setQuery(query, Users.class).build();
-        adapter = new FirebaseRecyclerAdapter<Users, FindFriendViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<Users, AllUsersViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull FindFriendViewHolder holder, int position, @NonNull Users model) {
+            protected void onBindViewHolder(@NonNull AllUsersViewHolder holder, int position, @NonNull Users model) {
                 if (mUser.getUid().equals(getRef(position).getKey().toString()))
                 {
                     holder.itemView.setVisibility(View.GONE);
@@ -143,11 +143,11 @@ public class FindFriendActivity extends AppCompatActivity {
 
             @NonNull
             @Override
-            public FindFriendViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public AllUsersViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_user, parent, false);
 
-                return new FindFriendViewHolder(view);
+                return new AllUsersViewHolder(view);
                 //return null;
             }
         };

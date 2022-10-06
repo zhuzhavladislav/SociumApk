@@ -19,7 +19,7 @@
         <activity android:name=".ChatActivity" />
         <activity android:name=".FriendsActivity" />
         <activity android:name=".ProfileActivity" />
-        <activity android:name=".FindFriendActivity" />
+        <activity android:name=".AllUsersActivity" />
         <activity android:name=".ProfileEditActivity" />
         <activity android:name=".RegisterActivity" />
         <activity android:name=".LoginActivity" />
