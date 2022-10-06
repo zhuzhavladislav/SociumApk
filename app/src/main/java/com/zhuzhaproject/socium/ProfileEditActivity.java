@@ -42,6 +42,7 @@ public class ProfileEditActivity extends AppCompatActivity {
     private static final int REQUEST_CODE1 = 101;
     private static final int REQUEST_CODE2 = 102;
     Toolbar toolbar;
+    String cover;
     CircleImageView profileImageView;
     ImageView profileCover;
     EditText inputUsername, inputCountry, inputCity, inputProfession, inputStatus;
@@ -50,9 +51,11 @@ public class ProfileEditActivity extends AppCompatActivity {
     DatabaseReference mUserRef;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
-    StorageReference StorageRef;
+    StorageReference StorageRefProfileImage, StorageRefCoverImage;
     Uri imageProfileUri, imageCoverUri;
     ProgressDialog mLoadingBar;
+    private String Uid;
+    Integer state;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +74,14 @@ public class ProfileEditActivity extends AppCompatActivity {
         inputProfession = findViewById(R.id.inputProfession);
         inputStatus = findViewById(R.id.inputStatus);
         btnUpdate = findViewById(R.id.btnUpdate);
-        mLoadingBar=new ProgressDialog(this);
+        mLoadingBar = new ProgressDialog(this);
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
+        Uid = mUser.getUid();
         mUserRef = FirebaseDatabase.getInstance().getReference().child("Users");
-        StorageRef = FirebaseStorage.getInstance().getReference().child("ProfileImage");
+        StorageRefProfileImage = FirebaseStorage.getInstance().getReference().child("ProfileImage");
+        StorageRefCoverImage = FirebaseStorage.getInstance().getReference().child("CoverImage");
 
         //changing statusbar color
         if (android.os.Build.VERSION.SDK_INT >= 21) {
@@ -90,6 +95,12 @@ public class ProfileEditActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
+                    if (snapshot.hasChild("cover")) {
+                        cover = snapshot.child("cover").getValue().toString();
+                        if (!cover.equals("")) {
+                            Picasso.get().load(cover).into(profileCover);
+                        }
+                    }
                     profileImageUrl = snapshot.child("profileImage").getValue().toString();
                     String city = snapshot.child("city").getValue().toString();
                     String country = snapshot.child("country").getValue().toString();
@@ -118,6 +129,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         profileImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                state=0;
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
                 startActivityForResult(intent, REQUEST_CODE1);
@@ -127,6 +139,7 @@ public class ProfileEditActivity extends AppCompatActivity {
         profileCover.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                state=1;
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
                 startActivityForResult(intent, REQUEST_CODE2);
@@ -155,26 +168,25 @@ public class ProfileEditActivity extends AppCompatActivity {
             showError(inputCity, "Город введен неверно");
         } else if (country.isEmpty() || country.length() < 3) {
             showError(inputCountry, "Страна введена неверно");
-        } else if(profession.isEmpty() || profession.length()<3) {
+        } else if (profession.isEmpty() || profession.length() < 3) {
             showError(inputProfession, "Профессия введена неверно");
-        }else{
+        } else {
             mLoadingBar.setTitle("Настройка профиля");
             mLoadingBar.setCanceledOnTouchOutside(false);
             mLoadingBar.show();
-            HashMap hashMap=new HashMap();
+            HashMap hashMap = new HashMap();
             hashMap.put("username", username);
             hashMap.put("city", city);
             hashMap.put("country", country);
             hashMap.put("profession", profession);
             hashMap.put("status", status);
             hashMap.put("device_token", FirebaseInstanceId.getInstance().getToken());
-            if(imageProfileUri!=null){
-                StorageRef.child(mUser.getUid()).putFile(imageProfileUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+            if (imageProfileUri != null && imageCoverUri == null) {
+                StorageRefProfileImage.child(Uid).putFile(imageProfileUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if (task.isSuccessful())
-                        {
-                            StorageRef.child(mUser.getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        if (task.isSuccessful()) {
+                            StorageRefProfileImage.child(mUser.getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri uri) {
                                     hashMap.put("profileImage", uri.toString());
@@ -183,6 +195,8 @@ public class ProfileEditActivity extends AppCompatActivity {
                                         public void onSuccess(Object o) {
                                             mLoadingBar.dismiss();
                                             Toast.makeText(ProfileEditActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                                            startActivity(new Intent(getApplicationContext()
+                                                    , MainActivity.class));
                                         }
                                     }).addOnFailureListener(new OnFailureListener() {
                                         @Override
@@ -196,12 +210,82 @@ public class ProfileEditActivity extends AppCompatActivity {
                         }
                     }
                 });
-            } else if (profileImageUrl!=null && profileImageUrl!="") {
-                mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
+            } else if (imageProfileUri == null && imageCoverUri != null) {
+                StorageRefCoverImage.child(Uid).putFile(imageCoverUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            StorageRefCoverImage.child(mUser.getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    hashMap.put("cover", uri.toString());
+                                    mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
+                                        @Override
+                                        public void onSuccess(Object o) {
+                                            mLoadingBar.dismiss();
+                                            Toast.makeText(ProfileEditActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                                            finish();
+                                        }
+                                    }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            mLoadingBar.dismiss();
+                                            Toast.makeText(ProfileEditActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            } else if (imageProfileUri != null && imageCoverUri != null) {
+                StorageRefProfileImage.child(Uid).putFile(imageProfileUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task1) {
+                        if (task1.isSuccessful()) {
+                            StorageRefProfileImage.child(Uid).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri1) {
+                                    hashMap.put("profileImage", uri1.toString());
+                                    StorageRefCoverImage.child(Uid).putFile(imageCoverUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task2) {
+                                            if (task2.isSuccessful()) {
+                                                StorageRefCoverImage.child(Uid).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                    @Override
+                                                    public void onSuccess(Uri uri2) {
+                                                        hashMap.put("cover", uri2.toString());
+                                                        mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
+                                                            @Override
+                                                            public void onSuccess(Object o) {
+                                                                mLoadingBar.dismiss();
+                                                                Toast.makeText(ProfileEditActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                                                                finish();
+                                                            }
+                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                mLoadingBar.dismiss();
+                                                                Toast.makeText(ProfileEditActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            } else if (profileImageUrl != null && !profileImageUrl.equals("")) {
+                mUserRef.child(Uid).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
                     @Override
                     public void onSuccess(Object o) {
                         mLoadingBar.dismiss();
                         Toast.makeText(ProfileEditActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                        finish();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -210,11 +294,11 @@ public class ProfileEditActivity extends AppCompatActivity {
                         Toast.makeText(ProfileEditActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
+//                if (imageProfileUri == null && profileImageUrl == null && profileImageUrl.equals(""))
             } else {
                 mLoadingBar.dismiss();
                 Toast.makeText(ProfileEditActivity.this, "При создании профиля необходимо добавить изображение", Toast.LENGTH_SHORT).show();
             }
-
         }
 
     }
@@ -227,11 +311,11 @@ public class ProfileEditActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE1 && resultCode == RESULT_OK && data != null) {
+        if (requestCode == REQUEST_CODE1 && resultCode == RESULT_OK && state==0 && data != null) {
             imageProfileUri = data.getData();
             profileImageView.setImageURI(imageProfileUri);
         }
-        if (requestCode == REQUEST_CODE2 && resultCode == RESULT_OK && data != null) {
+        if (requestCode == REQUEST_CODE2 && resultCode == RESULT_OK && state==1 && data != null) {
             imageCoverUri = data.getData();
             profileCover.setImageURI(imageCoverUri);
         }

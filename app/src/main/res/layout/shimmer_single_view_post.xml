@@ -28,7 +28,7 @@
                 android:layout_height="40dp"
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="15dp"
-                android:src="@drawable/profile2"
+                android:src="@drawable/profile_image_empty"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -90,7 +90,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/post_description"
-                app:srcCompat="@drawable/image" />
+                />
 
             <View
                 android:id="@+id/view3"

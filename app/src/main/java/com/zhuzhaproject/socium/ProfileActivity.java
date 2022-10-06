@@ -25,6 +25,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -74,7 +75,6 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-
         setContentView(R.layout.activity_profile);
         Uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         toolbar = findViewById(R.id.app_bar);
@@ -98,8 +98,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-//        cardView = findViewById(R.id.CardView);
-//        cardView.setVisibility(View.INVISIBLE);
         shimmerFrameLayout = findViewById(R.id.shimmerFrameLayout);
         shimmerFrameLayout.setVisibility(View.GONE);
 
@@ -111,7 +109,7 @@ public class ProfileActivity extends AppCompatActivity {
         friendRef = FirebaseDatabase.getInstance().getReference().child("Friends"); // mFriendDatabase
 
         // отключение анимации
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
         // нижняя навигация
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         // выбранный элемент в нижнем меню
@@ -124,23 +122,24 @@ public class ProfileActivity extends AppCompatActivity {
                     case R.id.nav_home:
                         startActivity(new Intent(getApplicationContext()
                                 , MainActivity.class));
-                        overridePendingTransition(0,0);
+                        overridePendingTransition(0, 0);
                         return false;
                     case R.id.nav_chat:
                         startActivity(new Intent(getApplicationContext()
                                 , ChatUsersActivity.class));
-                        overridePendingTransition(0,0);
+                        overridePendingTransition(0, 0);
                         return false;
                     case R.id.nav_friends:
                         startActivity(new Intent(getApplicationContext()
                                 , FriendsActivity.class));
-                        overridePendingTransition(0,0);
+                        overridePendingTransition(0, 0);
                         return false;
                 }
                 return false;
             }
         });
 
+        CheckUserExistance(userID);
         LoadUser();
         LoadUsers();
 
@@ -158,19 +157,17 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ProfileActivity.this, ProfileEditActivity.class);
-//                intent.putExtra("OtherUserID",userID);
-//                intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                 startActivity(intent);
-                overridePendingTransition(0,0);
+                overridePendingTransition(0, 0);
             }
         });
         btnMsg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ProfileActivity.this, ChatActivity.class);
-                intent.putExtra("OtherUserID",userID);
+                intent.putExtra("OtherUserID", userID);
                 startActivity(intent);
-                overridePendingTransition(0,0);
+                overridePendingTransition(0, 0);
             }
         });
         btnPerform.setOnClickListener(new View.OnClickListener() {
@@ -179,7 +176,7 @@ public class ProfileActivity extends AppCompatActivity {
                 PerformAction(userID);
             }
         });
-        CheckUserExistance(userID);
+
         btnDecline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -190,12 +187,12 @@ public class ProfileActivity extends AppCompatActivity {
         friendRef.child(userID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists())
-                {
+                if (snapshot.exists()) {
                     int totalFriends = (int) snapshot.getChildrenCount();
-                    friendsCounter.setText(totalFriends+"");
-                }else{
+                    friendsCounter.setText(totalFriends + "");
+                } else {
                     friendsCounter.setText("0");
+                    recyclerView.setVisibility(View.GONE);
                 }
             }
 
@@ -252,7 +249,7 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void CheckUserExistance(String userID) {
-        if(Uid.equals(userID)){
+        if (Uid.equals(userID)) {
             btnEdit.setVisibility(View.VISIBLE);
             btnDecline.setVisibility(View.GONE);
             btnMsg.setVisibility(View.GONE);
@@ -491,27 +488,39 @@ public class ProfileActivity extends AppCompatActivity {
                     city = snapshot.child("city").getValue().toString();
                     country = snapshot.child("country").getValue().toString();
                     profession = snapshot.child("profession").getValue().toString();
-                    status = snapshot.child("status").getValue().toString();
-                    if (snapshot.hasChild("cover")){
-                        if(snapshot.child("cover").getValue().toString() != ""){
-                            cover = snapshot.child("cover").getValue().toString();
-                            Picasso.get().load(cover).into(profile_cover);
-                        }
-                        Picasso.get().load(profileImageUrl).into(profile_cover);
-                        profile_cover.setRenderEffect(RenderEffect.createBlurEffect(20, 20, Shader.TileMode.MIRROR));
-                    } else {
-                        Picasso.get().load(profileImageUrl).into(profile_cover);
-                        profile_cover.setRenderEffect(RenderEffect.createBlurEffect(20, 20, Shader.TileMode.MIRROR));
-                    }
+
 
                     Picasso.get().load(profileImageUrl).into(profileImageView);
                     outputLocation.setText("Место проживания: " + country + ", " + city);
                     outputProfession.setText("Профессия: " + profession);
                     outputUsername.setText(username);
-                    outputStatus.setText(status);
+
+                    if (snapshot.hasChild("status")){
+                        status = snapshot.child("status").getValue().toString();
+                        if (status.equals("")){
+                            outputStatus.setVisibility(View.GONE);
+                        } else {
+                            outputStatus.setText(status);
+                        }
+                    }
+                    if (snapshot.hasChild("cover")) {
+                        cover = snapshot.child("cover").getValue().toString();
+                        if (!cover.equals("")){
+                            Picasso.get().load(cover).into(profile_cover);
+                        } else {
+                            Picasso.get().load(profileImageUrl).into(profile_cover);
+                            profile_cover.setRenderEffect(RenderEffect.createBlurEffect(20, 20, Shader.TileMode.MIRROR));
+                        }
+                    } else {
+                        Picasso.get().load(profileImageUrl).into(profile_cover);
+                        profile_cover.setRenderEffect(RenderEffect.createBlurEffect(20, 20, Shader.TileMode.MIRROR));
+                    }
+
+
+
                 } else {
                     Toast.makeText(ProfileActivity.this, "Пользователь не существует", Toast.LENGTH_SHORT).show();
-                    Intent intent=new Intent(ProfileActivity.this, ProfileEditActivity.class);
+                    Intent intent = new Intent(ProfileActivity.this, ProfileEditActivity.class);
                     startActivity(intent);
                     finish();
                 }
@@ -555,7 +564,6 @@ public class ProfileActivity extends AppCompatActivity {
                                 startActivity(intent);
                             }
                         });
-
 
 
                     }

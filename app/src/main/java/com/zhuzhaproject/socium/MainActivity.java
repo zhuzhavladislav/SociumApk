@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setVisibility(View.INVISIBLE);
 
+
         friends_IdList = new ArrayList<String>();
 
         mAuth = FirebaseAuth.getInstance();
