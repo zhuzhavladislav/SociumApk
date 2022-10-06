@@ -34,7 +34,7 @@ public class FriendsActivity extends AppCompatActivity {
     Toolbar toolbar;
 
     FirebaseRecyclerOptions<Friends> options;
-    FirebaseRecyclerAdapter<Friends, ProfileViewHolder> adapter;
+    FirebaseRecyclerAdapter<Friends, UserViewHolder> adapter;
 
     DatabaseReference friendRef, mUserRef;
     FirebaseAuth mAuth;
@@ -119,9 +119,9 @@ public class FriendsActivity extends AppCompatActivity {
     private void LoadUsers(String s) {
         Query query = friendRef.child(mUser.getUid()).orderByChild("username").startAt(s).endAt(s + "\uf8ff");
         options = new FirebaseRecyclerOptions.Builder<Friends>().setQuery(query, Friends.class).build();
-        adapter = new FirebaseRecyclerAdapter<Friends, ProfileViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<Friends, UserViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull ProfileViewHolder holder, int position, @NonNull Friends model) {
+            protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull Friends model) {
                 final String friend_user_id = getRef(position).getKey();
                 mUserRef.child(friend_user_id).addValueEventListener(new ValueEventListener() {
                     @Override
@@ -162,9 +162,9 @@ public class FriendsActivity extends AppCompatActivity {
 
             @NonNull
             @Override
-            public ProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_user, parent, false);
-                return new ProfileViewHolder(view);
+                return new UserViewHolder(view);
                 //return null;
             }
         };

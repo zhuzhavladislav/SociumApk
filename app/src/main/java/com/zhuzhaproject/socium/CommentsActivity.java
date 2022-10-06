@@ -1,8 +1,11 @@
 package com.zhuzhaproject.socium;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -136,6 +139,9 @@ public class CommentsActivity extends AppCompatActivity {
 
         loadcomments(post_id);
 
+        input_comment.addTextChangedListener(commentTextWatcher);
+        send_comment.setClickable(false);
+
         send_comment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -145,6 +151,30 @@ public class CommentsActivity extends AppCompatActivity {
 
 
     }
+
+    private TextWatcher commentTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            String inputTextSms = input_comment.getText().toString().trim();
+            if (inputTextSms.isEmpty()){
+                send_comment.setColorFilter(Color.rgb(154, 156, 164));
+                send_comment.setClickable(false);
+            }else{
+                send_comment.setColorFilter(Color.rgb(67, 205, 232));
+                send_comment.setClickable(true);
+            }
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+
+        }
+    };
 
     private void postComment(String post_id) {
         String commentToPost = input_comment.getText().toString().trim();
@@ -173,7 +203,7 @@ public class CommentsActivity extends AppCompatActivity {
                 }
             });
         } else {
-            Toast.makeText(this, "Нечего опубликовывать..", Toast.LENGTH_SHORT).show();
+
         }
 
 
@@ -209,7 +239,7 @@ public class CommentsActivity extends AppCompatActivity {
                                     .child(comment_id).setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            Toast.makeText(CommentsActivity.this, "Comment Deleted", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(CommentsActivity.this, "Комментарий удалён", Toast.LENGTH_SHORT).show();
                                         }
                                     });
                         }

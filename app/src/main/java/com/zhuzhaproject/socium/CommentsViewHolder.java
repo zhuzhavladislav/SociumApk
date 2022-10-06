@@ -50,7 +50,7 @@ public class CommentsViewHolder extends RecyclerView.ViewHolder {
     }
 
     public void setTime(String time) {
-        TextView comment_time = (TextView) mView.findViewById(R.id.status);
+        TextView comment_time = (TextView) mView.findViewById(R.id.textUnder);
         comment_time.setText(time);
     }
 

@@ -8,15 +8,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class AllUsersViewHolder extends RecyclerView.ViewHolder {
+public class AllChatsViewHolder extends RecyclerView.ViewHolder {
 
     CircleImageView profileImage;
-    TextView username, profession;
+    TextView username, lastMessage;
 
-    public AllUsersViewHolder(@NonNull View itemView) {
+    public AllChatsViewHolder(@NonNull View itemView) {
         super(itemView);
         profileImage=itemView.findViewById(R.id.profile_image);
         username=itemView.findViewById(R.id.user_name);
-        profession=itemView.findViewById(R.id.textUnder);
+        lastMessage=itemView.findViewById(R.id.textUnder);
     }
 }

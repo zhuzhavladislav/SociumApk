@@ -91,38 +91,36 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/post_image" />
 
+    <View
+        android:id="@+id/line2"
+        android:layout_width="0dp"
+        android:layout_height="0.5dp"
+        android:background="#e9eaec"
+        android:foregroundGravity="bottom"
+        app:layout_constraintBottom_toBottomOf="@+id/comment_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/white"
+        android:paddingTop="7dp"
+        android:paddingBottom="7dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
-
-        <ImageView
-            android:id="@+id/addImagePost"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_add_image"
-            tools:visibility="gone" />
 
         <ImageView
             android:id="@+id/send_comment"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_marginEnd="15dp"
+            android:layout_marginBottom="6dp"
             android:clickable="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_accept" />
 
         <EditText
@@ -135,10 +133,9 @@
             android:layout_marginBottom="5dp"
             android:background="@drawable/bg_input_add_post"
             android:fontFamily="@font/sfpro_regular"
-            android:gravity="top|left"
             android:hint="Комментарий"
             android:maxLines="5"
-            android:textSize="24sp"
+            android:textSize="18sp"
             app:autoSizeTextType="uniform"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/send_comment"

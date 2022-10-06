@@ -59,7 +59,7 @@ public class ProfileActivity extends AppCompatActivity {
     String Uid;
 
     FirebaseRecyclerOptions<Friends> options;
-    FirebaseRecyclerAdapter<Friends, ProfileViewHolder> adapter;
+    FirebaseRecyclerAdapter<Friends, UserViewHolder> adapter;
 
     DatabaseReference mUserRef, mUserRef2, requestRef, friendRef;
     FirebaseAuth mAuth;
@@ -509,11 +509,11 @@ public class ProfileActivity extends AppCompatActivity {
                             Picasso.get().load(cover).into(profile_cover);
                         } else {
                             Picasso.get().load(profileImageUrl).into(profile_cover);
-                            profile_cover.setRenderEffect(RenderEffect.createBlurEffect(20, 20, Shader.TileMode.MIRROR));
+                            profile_cover.setRenderEffect(RenderEffect.createBlurEffect(60, 60, Shader.TileMode.MIRROR));
                         }
                     } else {
                         Picasso.get().load(profileImageUrl).into(profile_cover);
-                        profile_cover.setRenderEffect(RenderEffect.createBlurEffect(20, 20, Shader.TileMode.MIRROR));
+                        profile_cover.setRenderEffect(RenderEffect.createBlurEffect(60, 60, Shader.TileMode.MIRROR));
                     }
 
 
@@ -537,9 +537,9 @@ public class ProfileActivity extends AppCompatActivity {
     private void LoadUsers() {
         Query query = friendRef.child(userID).orderByChild("username");
         options = new FirebaseRecyclerOptions.Builder<Friends>().setQuery(query, Friends.class).build();
-        adapter = new FirebaseRecyclerAdapter<Friends, ProfileViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<Friends, UserViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull ProfileViewHolder holder, int position, @NonNull Friends model) {
+            protected void onBindViewHolder(@NonNull UserViewHolder holder, int position, @NonNull Friends model) {
                 final String friend_user_id = getRef(position).getKey();
                 mUserRef2.child(friend_user_id).addValueEventListener(new ValueEventListener() {
                     @Override
@@ -579,9 +579,9 @@ public class ProfileActivity extends AppCompatActivity {
 
             @NonNull
             @Override
-            public ProfileViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_friend, parent, false);
-                return new ProfileViewHolder(view);
+                return new UserViewHolder(view);
                 //return null;
             }
         };

@@ -81,7 +81,7 @@ public class ChatActivity extends AppCompatActivity {
         btnSend=findViewById(R.id.btnSend);
         toolbar_profile=findViewById(R.id.toolbar_profile);
         usernameAppbar=findViewById(R.id.usernameAppbar);
-        status=findViewById(R.id.status);
+        status=findViewById(R.id.textUnder);
 
         // отключение анимации
         overridePendingTransition(0,0);
