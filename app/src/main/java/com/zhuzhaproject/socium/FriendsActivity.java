@@ -1,9 +1,9 @@
 package com.zhuzhaproject.socium;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -30,6 +30,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 import com.zhuzhaproject.socium.Utils.Friends;
 
+import java.util.Objects;
+
 public class FriendsActivity extends AppCompatActivity {
     Toolbar toolbar;
 
@@ -42,16 +44,17 @@ public class FriendsActivity extends AppCompatActivity {
     RecyclerView recyclerView;
 
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
 
-        SearchView searchView = (SearchView) findViewById(R.id.searchView2);
+        SearchView searchView = findViewById(R.id.searchView2);
 
         toolbar = findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
+        Objects.requireNonNull(getSupportActionBar()).setTitle("");
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -61,13 +64,11 @@ public class FriendsActivity extends AppCompatActivity {
         mUser = mAuth.getCurrentUser();
 
         //changing statusbar color
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            Window window = this.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(this.getResources().getColor(R.color.white));
-            window.setNavigationBarColor(this.getResources().getColor(R.color.white));
-        }
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(this.getResources().getColor(R.color.white));
+        window.setNavigationBarColor(this.getResources().getColor(R.color.white));
 
         // отключение анимации
         overridePendingTransition(0, 0);
@@ -76,28 +77,25 @@ public class FriendsActivity extends AppCompatActivity {
         // выбранный элемент в нижнем меню
         bottomNavigationView.setSelectedItemId(R.id.nav_friends);
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.nav_home:
-                        Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
-                        intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent1);
-                        overridePendingTransition(0, 0);
-                        return false;
-                    case R.id.nav_chat:
-                        Intent intent2 = new Intent(getApplicationContext(), AllChatsActivity.class);
-                        intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent2);
-                        overridePendingTransition(0, 0);
-                        return false;
-                    case R.id.nav_friends:
-                        overridePendingTransition(0, 0);
-                        return false;
-                }
-                return false;
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.nav_home:
+                    Intent intent1 = new Intent(getApplicationContext(), MainActivity.class);
+                    intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent1);
+                    overridePendingTransition(0, 0);
+                    return false;
+                case R.id.nav_chat:
+                    Intent intent2 = new Intent(getApplicationContext(), AllChatsActivity.class);
+                    intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent2);
+                    overridePendingTransition(0, 0);
+                    return false;
+                case R.id.nav_friends:
+                    overridePendingTransition(0, 0);
+                    return false;
             }
+            return false;
         });
 
         LoadUsers("");
@@ -121,40 +119,32 @@ public class FriendsActivity extends AppCompatActivity {
     private void LoadUsers(String s) {
         Query query = friendRef.child(mUser.getUid()).orderByChild("username").startAt(s).endAt(s + "\uf8ff");
         options = new FirebaseRecyclerOptions.Builder<Friends>().setQuery(query, Friends.class).build();
-        adapter = new FirebaseRecyclerAdapter<Friends, FriendsViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull FriendsViewHolder holder, int position, @NonNull Friends model) {
+            protected void onBindViewHolder(@NonNull FriendsViewHolder holder, @SuppressLint("RecyclerView") int position, @NonNull Friends model) {
                 final String friend_user_id = getRef(position).getKey();
+                assert friend_user_id != null;
                 mUserRef.child(friend_user_id).addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        final String username = dataSnapshot.child("username").getValue().toString();
-                        String profileImageUrl = dataSnapshot.child("profileImage").getValue().toString();
-                        String status = dataSnapshot.child("status").getValue().toString();
-//                        String status = dataSnapshot.child("status").getValue().toString();
-//                        if(dataSnapshot.hasChild("online")) {
-//                            String useronline = dataSnapshot.child("online").getValue().toString();
-//                            viewHolder.setUserOnline(useronline);
-//                        }
-//                        holder.setName(username);
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        final String username = Objects.requireNonNull(dataSnapshot.child("username").getValue()).toString();
+                        String profileImageUrl = Objects.requireNonNull(dataSnapshot.child("profileImage").getValue()).toString();
+                        String status = Objects.requireNonNull(dataSnapshot.child("status").getValue()).toString();
 
                         Picasso.get().load(profileImageUrl).into(holder.profileImageUrl);
                         holder.username.setText(username);
                         holder.status.setText(status);
-                        holder.itemView.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
-                                intent.putExtra("userKey", getRef(position).getKey().toString());
-                                startActivity(intent);
-                            }
+                        holder.itemView.setOnClickListener(v -> {
+                            Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                            intent.putExtra("userKey", getRef(position).getKey());
+                            startActivity(intent);
                         });
 
 
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
 
                     }
                 });
@@ -167,7 +157,6 @@ public class FriendsActivity extends AppCompatActivity {
             public FriendsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.single_view_user, parent, false);
                 return new FriendsViewHolder(view);
-                //return null;
             }
         };
         adapter.startListening();

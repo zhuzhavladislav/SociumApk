@@ -1,23 +1,23 @@
 package com.zhuzhaproject.socium.Utils;
 
 public class Chat {
-    private String sms, status, userID;
+    private String message, status, userID;
 
     public Chat() {
     }
 
-    public Chat(String sms, String status, String userID) {
-        this.sms = sms;
+    public Chat(String message, String status, String userID) {
+        this.message = message;
         this.status = status;
         this.userID = userID;
     }
 
-    public String getSms() {
-        return sms;
+    public String getMessage() {
+        return message;
     }
 
-    public void setSms(String sms) {
-        this.sms = sms;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public String getStatus() {

@@ -1,5 +1,6 @@
 package com.zhuzhaproject.socium;
 
+import android.annotation.SuppressLint;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -20,21 +21,22 @@ public class MainViewHolder extends RecyclerView.ViewHolder{
 
     public MainViewHolder(View itemView) {
         super(itemView);
-        post_like_image = (ImageView) itemView.findViewById(R.id.post_like_image);
-        post_comment_image = (ImageView) itemView.findViewById(R.id.post_comment_image);
-        post_item_delete = (ImageView) itemView.findViewById(R.id.post_item_delete);
-        post_description = (TextView) itemView.findViewById(R.id.post_description);
-        post_like_button = (Button) itemView.findViewById(R.id.post_like_button);
-        post_comment_button = (Button) itemView.findViewById(R.id.post_comment_button);
-        post_image = (ImageView) itemView.findViewById(R.id.post_image);
-        user_image = (CircleImageView) itemView.findViewById(R.id.user_image);
-        post_comments_count = (TextView) itemView.findViewById(R.id.post_comments_count);
-        post_likes_count = (TextView) itemView.findViewById(R.id.post_likes_count);
-        user_name = (TextView) itemView.findViewById(R.id.user_name);
-        post_time = (TextView) itemView.findViewById(R.id.post_time);
+        post_like_image = itemView.findViewById(R.id.post_like_image);
+        post_comment_image = itemView.findViewById(R.id.post_comment_image);
+        post_item_delete = itemView.findViewById(R.id.post_item_delete);
+        post_description = itemView.findViewById(R.id.post_description);
+        post_like_button = itemView.findViewById(R.id.post_like_button);
+        post_comment_button = itemView.findViewById(R.id.post_comment_button);
+        post_image = itemView.findViewById(R.id.post_image);
+        user_image = itemView.findViewById(R.id.user_image);
+        post_comments_count = itemView.findViewById(R.id.post_comments_count);
+        post_likes_count = itemView.findViewById(R.id.post_likes_count);
+        user_name = itemView.findViewById(R.id.user_name);
+        post_time = itemView.findViewById(R.id.post_time);
 
     }
 
+    @SuppressLint("SetTextI18n")
     public void setCommentsCount(int count){
         post_comments_count.setText(count+"");
     }
@@ -44,6 +46,7 @@ public class MainViewHolder extends RecyclerView.ViewHolder{
     public void setPostDescription(String text){
         post_description.setText(text);
     }
+    @SuppressLint("SetTextI18n")
     public void setLikesCount(final int likes){
         post_likes_count.setText(likes+"");
     }

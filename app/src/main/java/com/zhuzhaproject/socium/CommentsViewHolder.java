@@ -12,14 +12,13 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CommentsViewHolder extends RecyclerView.ViewHolder {
 
-    ImageView comment_item_delete, profile_image;
+    ImageView comment_item_delete;
     TextView user_name, comment_text, comment_time;
     CircleImageView profileImage;
 
 
     public CommentsViewHolder(View itemView) {
         super(itemView);
-        profile_image = itemView.findViewById(R.id.profile_image);
         profileImage = itemView.findViewById(R.id.profile_image);
         user_name = itemView.findViewById(R.id.user_name);
         comment_text = itemView.findViewById(R.id.comment_text);

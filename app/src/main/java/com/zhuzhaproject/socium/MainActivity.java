@@ -1,13 +1,12 @@
 package com.zhuzhaproject.socium;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -17,7 +16,6 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -28,7 +26,6 @@ import com.daimajia.androidanimations.library.YoYo;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -41,6 +38,7 @@ import com.squareup.picasso.Picasso;
 import com.zhuzhaproject.socium.Utils.Post;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -66,26 +64,30 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ShimmerFrameLayout shimmerFrameLayout;
 
-    @Nullable
+    @SuppressLint("NonConstantResourceId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         toolbar = findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
-        mLoadingBar = new ProgressDialog(this);
-        shimmerFrameLayout = findViewById(R.id.shimmerFrameLayout);
-        recyclerView = findViewById(R.id.recyclerView);
+        Objects.requireNonNull(getSupportActionBar()).setTitle("");
+
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setStackFromEnd(true);
         layoutManager.setReverseLayout(true);
+        recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setVisibility(View.INVISIBLE);
-        friends_IdList = new ArrayList<String>();
+        shimmerFrameLayout = findViewById(R.id.shimmerFrameLayout);
+
+        mLoadingBar = new ProgressDialog(this);
+
+        friends_IdList = new ArrayList<>();
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
-        Uid = mAuth.getCurrentUser().getUid();
+        Uid = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
         postRef = FirebaseDatabase.getInstance().getReference().child("PostsToShow");
         userRef = FirebaseDatabase.getInstance().getReference().child("Users");
         allPostsRef = FirebaseDatabase.getInstance().getReference().child("AllPosts");
@@ -102,81 +104,63 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         // выбранный элемент в нижнем меню
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
-        //changing statusbar color
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            Window window = this.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(this.getResources().getColor(R.color.white));
-            window.setNavigationBarColor(this.getResources().getColor(R.color.white));
-        }
+        //changing statusBar color
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(this.getResources().getColor(R.color.white));
+        window.setNavigationBarColor(this.getResources().getColor(R.color.white));
         //Toolbar
-        addFriends = (ImageButton) findViewById(R.id.toolbar_addFriends);
-        createPost = (ImageButton) findViewById(R.id.toolbar_creatPost);
-        profileImage = (CircleImageView) findViewById(R.id.toolbar_profile);
-        logo = (ImageView) findViewById(R.id.toolbar_logo);
-        //toolbar createpost on click listener
-        createPost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext()
-                        , CreatePostActivity.class));
-            }
-        });
-        //toolbar addfriends on click listener
-        addFriends.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext()
-                        , AllUsersActivity.class));
-            }
-        });
+        addFriends = findViewById(R.id.toolbar_addFriends);
+        createPost = findViewById(R.id.toolbar_creatPost);
+        profileImage = findViewById(R.id.toolbar_profile);
+        logo = findViewById(R.id.toolbar_logo);
+        //toolbar createPost on click listener
+        createPost.setOnClickListener(v -> startActivity(new Intent(getApplicationContext()
+                , CreatePostActivity.class)));
+        //toolbar addFriends on click listener
+        addFriends.setOnClickListener(view -> startActivity(new Intent(getApplicationContext()
+                , AllUsersActivity.class)));
         //profile image on click listener
-        profileImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent profIntent = new Intent(MainActivity.this, ProfileActivity.class);
-                profIntent.putExtra("userKey", Uid);
-                startActivity(profIntent);
-            }
+        profileImage.setOnClickListener(view -> {
+            Intent profIntent = new Intent(MainActivity.this, ProfileActivity.class);
+            profIntent.putExtra("userKey", Uid);
+            startActivity(profIntent);
         });
         friendsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     friends_IdList.add(ds.getKey());
                 }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
         friends_IdList.add(Uid);
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.nav_home:
-                        overridePendingTransition(0, 0);
-                        return false;
-                    case R.id.nav_chat:
-                        Intent intent1 = new Intent(getApplicationContext(), AllChatsActivity.class);
-                        intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent1);
-                        overridePendingTransition(0, 0);
-                        return false;
-                    case R.id.nav_friends:
-                        Intent intent2 = new Intent(getApplicationContext(), FriendsActivity.class);
-                        intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent2);
-                        overridePendingTransition(0, 0);
-                        return false;
-                }
-                return false;
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.nav_home:
+                    overridePendingTransition(0, 0);
+                    return false;
+                case R.id.nav_chat:
+                    Intent intent1 = new Intent(getApplicationContext(), AllChatsActivity.class);
+                    intent1.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent1);
+                    overridePendingTransition(0, 0);
+                    return false;
+                case R.id.nav_friends:
+                    Intent intent2 = new Intent(getApplicationContext(), FriendsActivity.class);
+                    intent2.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent2);
+                    overridePendingTransition(0, 0);
+                    return false;
             }
+            return false;
         });
         LoadPost();
     }
@@ -191,8 +175,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
-                        profileImageUrlV = dataSnapshot.child("profileImage").getValue().toString();
-                        usernameV = dataSnapshot.child("username").getValue().toString();
+                        profileImageUrlV = Objects.requireNonNull(dataSnapshot.child("profileImage").getValue()).toString();
+                        usernameV = Objects.requireNonNull(dataSnapshot.child("username").getValue()).toString();
                         Picasso.get().load(profileImageUrlV).into(profileImage);
                     }
                 }
@@ -207,24 +191,16 @@ public class MainActivity extends AppCompatActivity {
 
     private void LoadPost() {
         options = new FirebaseRecyclerOptions.Builder<Post>().setQuery(postRef.child(Uid), Post.class).build();
-        adapter = new FirebaseRecyclerAdapter<Post, MainViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<>(options) {
             @Override
             protected void onBindViewHolder(@NonNull MainViewHolder holder, int position, @NonNull Post model) {
 
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        recyclerView.setVisibility(View.VISIBLE);
-                        YoYo.with(Techniques.FadeOut)
-                                .duration(100)
-                                .playOn(shimmerFrameLayout);
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                shimmerFrameLayout.setVisibility(View.GONE);
-                            }
-                        }, 100);
-                    }
+                new Handler().postDelayed(() -> {
+                    recyclerView.setVisibility(View.VISIBLE);
+                    YoYo.with(Techniques.FadeOut)
+                            .duration(100)
+                            .playOn(shimmerFrameLayout);
+                    new Handler().postDelayed(() -> shimmerFrameLayout.setVisibility(View.GONE), 100);
                 }, 1000);
 
                 final String By = model.getBy();
@@ -236,6 +212,7 @@ public class MainActivity extends AppCompatActivity {
                 holder.setPostTime(postTime);
 
                 final String post_id = getRef(position).getKey();
+                assert post_id != null;
 
                 if (By.equals(Uid)) {
                     holder.post_item_delete.setVisibility(View.VISIBLE);
@@ -249,103 +226,67 @@ public class MainActivity extends AppCompatActivity {
                     holder.post_like_image.setBackgroundResource(R.drawable.ic_like);
 
 
-                holder.post_item_delete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
-                        alertDialogBuilder.setTitle("Подтверждение").setMessage("Вы точно хотите удалить пост?").setPositiveButton("Да", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
+                holder.post_item_delete.setOnClickListener(v -> {
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                    alertDialogBuilder.setTitle("Подтверждение").setMessage("Вы точно хотите удалить пост?").setPositiveButton("Да", (dialog, which) -> {
 
-                                for (String id : friends_IdList) {
-                                    postRef.child(id).child(post_id).setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            usersPostRef.child(post_id).setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void aVoid) {
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
-                                allPostsRef.child(post_id).setValue(null).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Toast.makeText(MainActivity.this, "Пост удалён", Toast.LENGTH_SHORT).show();
-                                        mLoadingBar.dismiss();
-                                    }
-                                });
+                        for (String id : friends_IdList) {
+                            postRef.child(id).child(post_id).setValue(null).addOnSuccessListener(aVoid -> usersPostRef.child(post_id).setValue(null).addOnSuccessListener(aVoid1 -> {
 
-                            }
-                        }).setNegativeButton("Нет", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        }).show();
-                    }
+                            }));
+                        }
+
+                        allPostsRef.child(post_id).setValue(null).addOnSuccessListener(aVoid -> {
+                            Toast.makeText(MainActivity.this, "Пост удалён", Toast.LENGTH_SHORT).show();
+                            mLoadingBar.dismiss();
+                        });
+
+                    }).setNegativeButton("Нет", (dialog, which) -> {
+                    }).show();
                 });
-
 
                 allPostsRef.child(post_id).addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                         int llikes;
                         if (dataSnapshot.hasChild("likes"))
-                            llikes = Integer.valueOf(dataSnapshot.child("likes").getValue().toString());
+                            llikes = Integer.parseInt(Objects.requireNonNull(dataSnapshot.child("likes").getValue()).toString());
                         else
                             llikes = 0;
 
                         final int likes = llikes;
                         holder.setLikesCount(likes);
-                        holder.post_like_button.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-
-                                if (liked.equals("false")) {
-                                    postRef.child(Uid).child(post_id).child("liked").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            allPostsRef.child(post_id).child("likes").setValue(likes + 1).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void aVoid) {
+                        holder.post_like_button.setOnClickListener(v -> {
+                            if (liked.equals("false")) {
+                                postRef.child(Uid).child(post_id).child("liked").setValue("true").addOnSuccessListener(aVoid -> allPostsRef.child(post_id).child("likes").setValue(likes + 1).addOnSuccessListener(aVoid2 -> {
 //                                                    Toast.makeText(MainActivity.this, "Liked", Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
-                                        }
-                                    });
-                                } else {
-                                    postRef.child(Uid).child(post_id).child("liked").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            allPostsRef.child(post_id).child("likes").setValue(likes - 1).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                @Override
-                                                public void onSuccess(Void aVoid) {
+                                }));
+                            } else {
+                                postRef.child(Uid).child(post_id).child("liked").setValue("false").addOnSuccessListener(aVoid -> allPostsRef.child(post_id).child("likes").setValue(likes - 1).addOnSuccessListener(aVoid2 -> {
 //                                                    Toast.makeText(MainActivity.this, "Unliked", Toast.LENGTH_SHORT).show();
-                                                }
-                                            });
-                                        }
-                                    });
-                                }
+                                }));
                             }
                         });
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) { }
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
                 });
 
                 allPostsRef.child(post_id).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onDataChange(final DataSnapshot dataSnapshot) {
-                        if (dataSnapshot.child("type").getValue().toString().equals("text")) {
-                            holder.setPostDescription(dataSnapshot.child("postDesc").getValue().toString());
+                    public void onDataChange(@NonNull final DataSnapshot dataSnapshot) {
+                        if (Objects.requireNonNull(dataSnapshot.child("type").getValue()).toString().equals("text")) {
+                            holder.setPostDescription(Objects.requireNonNull(dataSnapshot.child("postDesc").getValue()).toString());
                             holder.post_image.setVisibility(View.GONE);
                         } else {
                             holder.post_image.setVisibility(View.VISIBLE);
-                            holder.setPostDescription(dataSnapshot.child("postDesc").getValue().toString());
-                            holder.setPostImage(dataSnapshot.child("image").getValue().toString());
+                            holder.setPostDescription(Objects.requireNonNull(dataSnapshot.child("postDesc").getValue()).toString());
+                            holder.setPostImage(Objects.requireNonNull(dataSnapshot.child("image").getValue()).toString());
                         }
-                        if (dataSnapshot.child("postDesc").getValue().toString().equals("")) {
+                        if (Objects.requireNonNull(dataSnapshot.child("postDesc").getValue()).toString().equals("")) {
                             holder.post_description.setVisibility(View.GONE);
                         } else {
                             holder.post_description.setVisibility(View.VISIBLE);
@@ -353,51 +294,48 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) { }
-                });
-
-                holder.post_comment_button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent commentIntent = new Intent(MainActivity.this, CommentsActivity.class);
-                        commentIntent.putExtra("post_id", post_id);
-                        commentIntent.putExtra("name", By);
-                        commentIntent.putExtra("time", postTime);
-                        startActivity(commentIntent);
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
                     }
                 });
 
-                holder.user_image.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent profIntent = new Intent(MainActivity.this, ProfileActivity.class);
-                        profIntent.putExtra("userKey", By);
-                        startActivity(profIntent);
-                    }
+                holder.post_comment_button.setOnClickListener(v -> {
+                    Intent commentIntent = new Intent(MainActivity.this, CommentsActivity.class);
+                    commentIntent.putExtra("post_id", post_id);
+                    commentIntent.putExtra("name", By);
+                    commentIntent.putExtra("time", postTime);
+                    startActivity(commentIntent);
+                });
+
+                holder.user_image.setOnClickListener(v -> {
+                    Intent profIntent = new Intent(MainActivity.this, ProfileActivity.class);
+                    profIntent.putExtra("userKey", By);
+                    startActivity(profIntent);
                 });
 
                 allPostsRef.child(post_id).child("comments").addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         holder.setCommentsCount(((int) dataSnapshot.getChildrenCount()));
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) { }
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
                 });
 
                 userRef.child(By).addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         String username;
-                        username = dataSnapshot.child("username").getValue().toString();
-                        String profileImage = dataSnapshot.child("profileImage").getValue().toString();
+                        username = Objects.requireNonNull(dataSnapshot.child("username").getValue()).toString();
+                        String profileImage = Objects.requireNonNull(dataSnapshot.child("profileImage").getValue()).toString();
                         holder.setUserName(username);
                         holder.setUserImage(profileImage);
                     }
 
                     @Override
-                    public void onCancelled(DatabaseError databaseError) { }
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
                 });
             }
 

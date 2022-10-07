@@ -3,19 +3,16 @@ package com.zhuzhaproject.socium;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.Objects;
 
 public class AuthRegisterActivity extends AppCompatActivity {
 
@@ -39,28 +36,20 @@ public class AuthRegisterActivity extends AppCompatActivity {
         mAuth=FirebaseAuth.getInstance();
         mLoadingBar=new ProgressDialog(this);
 
-        btnRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AtemptRegistration();
-            }
-        });
-        alreadyHaveAccount.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AuthRegisterActivity.this, AuthLoginActivity.class);
-                startActivity(intent);
-            }
+        btnRegister.setOnClickListener(v -> AttemptRegistration());
+        alreadyHaveAccount.setOnClickListener(v -> {
+            Intent intent = new Intent(AuthRegisterActivity.this, AuthLoginActivity.class);
+            startActivity(intent);
         });
     }
 
-    private void AtemptRegistration() {
-        String email=inputEmail.getEditText().getText().toString();
-        String password=inputPassword.getEditText().getText().toString();
-        String confirmPassword=inputConfirmPassword.getEditText().getText().toString();
+    private void AttemptRegistration() {
+        String email= Objects.requireNonNull(inputEmail.getEditText()).getText().toString();
+        String password= Objects.requireNonNull(inputPassword.getEditText()).getText().toString();
+        String confirmPassword= Objects.requireNonNull(inputConfirmPassword.getEditText()).getText().toString();
 
 
-        if (email.isEmpty() || !email.contains("@"))
+        if (!email.contains("@") || !email.contains("."))
         {
             showError(inputEmail, "Электронный адрес не введен или введен неправильно");
         }else if(password.isEmpty() || password.length()<=5)
@@ -75,24 +64,21 @@ public class AuthRegisterActivity extends AppCompatActivity {
             mLoadingBar.setMessage("Пожалуйста подождите, пока мы вас регистрируем");
             mLoadingBar.setCanceledOnTouchOutside(false);
             mLoadingBar.show();
-            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful())
-                    {
-                        mLoadingBar.dismiss();
-                        Toast.makeText(AuthRegisterActivity.this,"Вы успешно зарегистрировались", Toast.LENGTH_SHORT).show();
-                        Intent intent = new Intent(AuthRegisterActivity.this, ProfileEditOrSetupActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        finish();
-                    }
-                    else
-                    {
-                        mLoadingBar.dismiss();
-                        Toast.makeText(AuthRegisterActivity.this,"Ошибка регистрации", Toast.LENGTH_SHORT).show();
+            mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
+                if (task.isSuccessful())
+                {
+                    mLoadingBar.dismiss();
+                    Toast.makeText(AuthRegisterActivity.this,"Вы успешно зарегистрировались", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(AuthRegisterActivity.this, ProfileEditOrSetupActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK| Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
+                }
+                else
+                {
+                    mLoadingBar.dismiss();
+                    Toast.makeText(AuthRegisterActivity.this,"Ошибка регистрации", Toast.LENGTH_SHORT).show();
 
-                    }
                 }
             });
 

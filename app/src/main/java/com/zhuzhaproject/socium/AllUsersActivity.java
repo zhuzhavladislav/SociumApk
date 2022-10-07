@@ -1,9 +1,9 @@
 package com.zhuzhaproject.socium;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -27,6 +27,8 @@ import com.google.firebase.database.Query;
 import com.squareup.picasso.Picasso;
 import com.zhuzhaproject.socium.Utils.Users;
 
+import java.util.Objects;
+
 public class AllUsersActivity extends AppCompatActivity {
     Toolbar toolbar;
 
@@ -39,16 +41,18 @@ public class AllUsersActivity extends AppCompatActivity {
     RecyclerView recyclerView;
 
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_all_users);
 
-        SearchView searchView = (SearchView) findViewById(R.id.searchView2);
-
         toolbar = findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
+        Objects.requireNonNull(getSupportActionBar()).setTitle("");
+
+        SearchView searchView = findViewById(R.id.searchView2);
+
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -57,13 +61,11 @@ public class AllUsersActivity extends AppCompatActivity {
         mUser = mAuth.getCurrentUser();
 
         //changing statusbar color
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            Window window = this.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(this.getResources().getColor(R.color.white));
-            window.setNavigationBarColor(this.getResources().getColor(R.color.white));
-        }
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(this.getResources().getColor(R.color.white));
+        window.setNavigationBarColor(this.getResources().getColor(R.color.white));
 
         // отключение анимации
         overridePendingTransition(0,0);
@@ -72,28 +74,25 @@ public class AllUsersActivity extends AppCompatActivity {
         // выбранный элемент в нижнем меню
         bottomNavigationView.setSelectedItemId(R.id.nav_home);
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.nav_home:
-                        startActivity(new Intent(getApplicationContext()
-                                , MainActivity.class));
-                        overridePendingTransition(0,0);
-                        return false;
-                    case R.id.nav_chat:
-                        startActivity(new Intent(getApplicationContext()
-                                , AllChatsActivity.class));
-                        overridePendingTransition(0,0);
-                        return false;
-                    case R.id.nav_friends:
-                        startActivity(new Intent(getApplicationContext()
-                                , FriendsActivity.class));
-                        overridePendingTransition(0,0);
-                        return false;
-                }
-                return false;
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.nav_home:
+                    startActivity(new Intent(getApplicationContext()
+                            , MainActivity.class));
+                    overridePendingTransition(0,0);
+                    return false;
+                case R.id.nav_chat:
+                    startActivity(new Intent(getApplicationContext()
+                            , AllChatsActivity.class));
+                    overridePendingTransition(0,0);
+                    return false;
+                case R.id.nav_friends:
+                    startActivity(new Intent(getApplicationContext()
+                            , FriendsActivity.class));
+                    overridePendingTransition(0,0);
+                    return false;
             }
+            return false;
         });
 
         LoadUsers("");
@@ -118,26 +117,22 @@ public class AllUsersActivity extends AppCompatActivity {
     private void LoadUsers(String s) {
         Query query= mUserRef.orderByChild("username").startAt(s).endAt(s+"\uf8ff");
         options = new FirebaseRecyclerOptions.Builder<Users>().setQuery(query, Users.class).build();
-        adapter = new FirebaseRecyclerAdapter<Users, AllUsersViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull AllUsersViewHolder holder, int position, @NonNull Users model) {
-                if (mUser.getUid().equals(getRef(position).getKey().toString()))
-                {
+            protected void onBindViewHolder(@NonNull AllUsersViewHolder holder, @SuppressLint("RecyclerView") int position, @NonNull Users model) {
+                if (mUser.getUid().equals(getRef(position).getKey())) {
                     holder.itemView.setVisibility(View.GONE);
-                    holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0,0));
+                    holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(0, 0));
 
-                }else{
+                } else {
                     Picasso.get().load(model.getProfileImage()).into(holder.profileImage);
                     holder.username.setText(model.getUsername());
                     holder.profession.setText(model.getProfession());
                 }
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
-                        intent.putExtra("userKey",getRef(position).getKey().toString());
-                        startActivity(intent);
-                    }
+                holder.itemView.setOnClickListener(v -> {
+                    Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                    intent.putExtra("userKey", getRef(position).getKey());
+                    startActivity(intent);
                 });
             }
 

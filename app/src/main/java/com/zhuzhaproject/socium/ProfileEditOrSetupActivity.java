@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -18,10 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -32,12 +27,12 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 import com.yalantis.ucrop.UCrop;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -49,9 +44,6 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
     CircleImageView profileImageView;
     ImageView profileCover;
     EditText inputUsername, inputCountry, inputCity, inputProfession, inputStatus;
-
-    Bitmap compressedProfileImageBitmap, compressedProfileCoverBitmap;
-    private byte[] image_profile_data, image_cover_data;
 
     Button btnUpdate;
     public String profileImageUrl;
@@ -71,7 +63,7 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.app_bar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("");
+        Objects.requireNonNull(getSupportActionBar()).setTitle("");
 
         profileImageView = findViewById(R.id.profile_image);
         profileCover = findViewById(R.id.profile_cover);
@@ -85,35 +77,34 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
+        assert mUser != null;
         Uid = mUser.getUid();
         mUserRef = FirebaseDatabase.getInstance().getReference().child("Users");
         StorageRefProfileImage = FirebaseStorage.getInstance().getReference().child("ProfileImage");
         StorageRefCoverImage = FirebaseStorage.getInstance().getReference().child("CoverImage");
 
         //changing statusbar color
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            Window window = this.getWindow();
-            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(this.getResources().getColor(R.color.white));
-        }
+        Window window = this.getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(this.getResources().getColor(R.color.white));
 
         mUserRef.child(mUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     if (snapshot.hasChild("cover")) {
-                        cover = snapshot.child("cover").getValue().toString();
+                        cover = Objects.requireNonNull(snapshot.child("cover").getValue()).toString();
                         if (!cover.equals("")) {
                             Picasso.get().load(cover).into(profileCover);
                         }
                     }
-                    profileImageUrl = snapshot.child("profileImage").getValue().toString();
-                    String city = snapshot.child("city").getValue().toString();
-                    String country = snapshot.child("country").getValue().toString();
-                    String profession = snapshot.child("profession").getValue().toString();
-                    String username = snapshot.child("username").getValue().toString();
-                    String status = snapshot.child("status").getValue().toString();
+                    profileImageUrl = Objects.requireNonNull(snapshot.child("profileImage").getValue()).toString();
+                    String city = Objects.requireNonNull(snapshot.child("city").getValue()).toString();
+                    String country = Objects.requireNonNull(snapshot.child("country").getValue()).toString();
+                    String profession = Objects.requireNonNull(snapshot.child("profession").getValue()).toString();
+                    String username = Objects.requireNonNull(snapshot.child("username").getValue()).toString();
+                    String status = Objects.requireNonNull(snapshot.child("status").getValue()).toString();
 
                     Picasso.get().load(profileImageUrl).into(profileImageView);
                     inputCity.setText(city);
@@ -129,36 +120,25 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(ProfileEditOrSetupActivity.this, "" + error.getMessage().toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProfileEditOrSetupActivity.this, "" + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
-        profileImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                state = 0;
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
-                startActivityForResult(intent, REQUEST_CODE1);
-            }
+        profileImageView.setOnClickListener(v -> {
+            state = 0;
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");
+            startActivityForResult(intent, REQUEST_CODE1);
         });
 
-        profileCover.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                state = 1;
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
-                startActivityForResult(intent, REQUEST_CODE2);
-            }
+        profileCover.setOnClickListener(view -> {
+            state = 1;
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("image/*");
+            startActivityForResult(intent, REQUEST_CODE2);
         });
 
-        btnUpdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                UpdateData();
-            }
-        });
+        btnUpdate.setOnClickListener(v -> UpdateData());
     }
 
     private void startCropProfileImage(@NonNull Uri uri) {
@@ -220,7 +200,7 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
             mLoadingBar.setTitle("Настройка профиля");
             mLoadingBar.setCanceledOnTouchOutside(false);
             mLoadingBar.show();
-            HashMap hashMap = new HashMap();
+            HashMap<String, Object> hashMap = new HashMap<>();
             hashMap.put("username", username);
             hashMap.put("city", city);
             hashMap.put("country", country);
@@ -228,119 +208,70 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
             hashMap.put("status", status);
             hashMap.put("device_token", FirebaseInstanceId.getInstance().getToken());
             if (imageProfileUriResultCrop != null && imageCoverUriResultCrop == null) {
-                StorageRefProfileImage.child(Uid).putFile(imageProfileUriResultCrop).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            StorageRefProfileImage.child(mUser.getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    hashMap.put("profileImage", uri.toString());
-                                    mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
-                                        @Override
-                                        public void onSuccess(Object o) {
-                                            mLoadingBar.dismiss();
-                                            Toast.makeText(ProfileEditOrSetupActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
-                                            startActivity(new Intent(getApplicationContext()
-                                                    , MainActivity.class));
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            mLoadingBar.dismiss();
-                                            Toast.makeText(ProfileEditOrSetupActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                }
+                StorageRefProfileImage.child(Uid).putFile(imageProfileUriResultCrop).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        StorageRefProfileImage.child(mUser.getUid()).getDownloadUrl().addOnSuccessListener(uri -> {
+                            hashMap.put("profileImage", uri.toString());
+                            mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(o -> {
+                                mLoadingBar.dismiss();
+                                Toast.makeText(ProfileEditOrSetupActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(getApplicationContext()
+                                        , MainActivity.class));
+                            }).addOnFailureListener(e -> {
+                                mLoadingBar.dismiss();
+                                Toast.makeText(ProfileEditOrSetupActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                             });
-                        }
+                        });
                     }
                 });
             } else if (imageProfileUriResultCrop == null && imageCoverUriResultCrop != null && profileImageUrl != null) {
-                StorageRefCoverImage.child(Uid).putFile(imageCoverUriResultCrop).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            StorageRefCoverImage.child(mUser.getUid()).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    hashMap.put("cover", uri.toString());
-                                    mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
-                                        @Override
-                                        public void onSuccess(Object o) {
-                                            mLoadingBar.dismiss();
-                                            Toast.makeText(ProfileEditOrSetupActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
-                                            finish();
-                                        }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                        @Override
-                                        public void onFailure(@NonNull Exception e) {
-                                            mLoadingBar.dismiss();
-                                            Toast.makeText(ProfileEditOrSetupActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-                                }
+                StorageRefCoverImage.child(Uid).putFile(imageCoverUriResultCrop).addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        StorageRefCoverImage.child(mUser.getUid()).getDownloadUrl().addOnSuccessListener(uri -> {
+                            hashMap.put("cover", uri.toString());
+                            mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(o -> {
+                                mLoadingBar.dismiss();
+                                Toast.makeText(ProfileEditOrSetupActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                                finish();
+                            }).addOnFailureListener(e -> {
+                                mLoadingBar.dismiss();
+                                Toast.makeText(ProfileEditOrSetupActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                             });
-                        }
+                        });
                     }
                 });
             } else if (imageProfileUriResultCrop != null && imageCoverUriResultCrop != null) {
-                StorageRefProfileImage.child(Uid).putFile(imageProfileUriResultCrop).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task1) {
-                        if (task1.isSuccessful()) {
-                            StorageRefProfileImage.child(Uid).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri1) {
-                                    hashMap.put("profileImage", uri1.toString());
-                                    StorageRefCoverImage.child(Uid).putFile(imageCoverUriResultCrop).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task2) {
-                                            if (task2.isSuccessful()) {
-                                                StorageRefCoverImage.child(Uid).getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                    @Override
-                                                    public void onSuccess(Uri uri2) {
-                                                        hashMap.put("cover", uri2.toString());
-                                                        mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
-                                                            @Override
-                                                            public void onSuccess(Object o) {
-                                                                mLoadingBar.dismiss();
-                                                                Toast.makeText(ProfileEditOrSetupActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
-                                                                finish();
-                                                            }
-                                                        }).addOnFailureListener(new OnFailureListener() {
-                                                            @Override
-                                                            public void onFailure(@NonNull Exception e) {
-                                                                mLoadingBar.dismiss();
-                                                                Toast.makeText(ProfileEditOrSetupActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
-                                                            }
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                        }
+                StorageRefProfileImage.child(Uid).putFile(imageProfileUriResultCrop).addOnCompleteListener(task1 -> {
+                    if (task1.isSuccessful()) {
+                        StorageRefProfileImage.child(Uid).getDownloadUrl().addOnSuccessListener(uri1 -> {
+                            hashMap.put("profileImage", uri1.toString());
+                            StorageRefCoverImage.child(Uid).putFile(imageCoverUriResultCrop).addOnCompleteListener(task2 -> {
+                                if (task2.isSuccessful()) {
+                                    StorageRefCoverImage.child(Uid).getDownloadUrl().addOnSuccessListener(uri2 -> {
+                                        hashMap.put("cover", uri2.toString());
+                                        mUserRef.child(mUser.getUid()).updateChildren(hashMap).addOnSuccessListener(o -> {
+                                            mLoadingBar.dismiss();
+                                            Toast.makeText(ProfileEditOrSetupActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                                            finish();
+                                        }).addOnFailureListener(e -> {
+                                            mLoadingBar.dismiss();
+                                            Toast.makeText(ProfileEditOrSetupActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
+                                        });
                                     });
                                 }
                             });
-                        }
+                        });
                     }
                 });
             } else if (imageProfileUriResultCrop == null && profileImageUrl != null) {
-                mUserRef.child(Uid).updateChildren(hashMap).addOnSuccessListener(new OnSuccessListener() {
-                    @Override
-                    public void onSuccess(Object o) {
-                        mLoadingBar.dismiss();
-                        Toast.makeText(ProfileEditOrSetupActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        mLoadingBar.dismiss();
-                        Toast.makeText(ProfileEditOrSetupActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
-                    }
+                mUserRef.child(Uid).updateChildren(hashMap).addOnSuccessListener(o -> {
+                    mLoadingBar.dismiss();
+                    Toast.makeText(ProfileEditOrSetupActivity.this, "Настройка профиля завершена", Toast.LENGTH_SHORT).show();
+                    finish();
+                }).addOnFailureListener(e -> {
+                    mLoadingBar.dismiss();
+                    Toast.makeText(ProfileEditOrSetupActivity.this, e.toString(), Toast.LENGTH_SHORT).show();
                 });
-//                if (imageProfileUri == null && profileImageUrl == null && profileImageUrl.equals(""))
             } else {
                 mLoadingBar.dismiss();
                 Toast.makeText(ProfileEditOrSetupActivity.this, "При создании профиля необходимо добавить изображение", Toast.LENGTH_SHORT).show();
@@ -357,23 +288,23 @@ public class ProfileEditOrSetupActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_CODE1 && resultCode == RESULT_OK && state == 0) {
+        if (requestCode == REQUEST_CODE1 && resultCode == RESULT_OK && state == 0 && data != null) {
             imageProfileUri = data.getData();
             if (imageProfileUri != null) {
                 startCropProfileImage(imageProfileUri);
             }
-        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK && state == 0) {
+        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK && state == 0  && data != null) {
             imageProfileUriResultCrop = UCrop.getOutput(data);
             if (imageProfileUriResultCrop != null) {
                 profileImageView.setImageURI(imageProfileUriResultCrop);
             }
         }
-        if (requestCode == REQUEST_CODE2 && resultCode == RESULT_OK && state == 1) {
+        if (requestCode == REQUEST_CODE2 && resultCode == RESULT_OK && state == 1  && data != null) {
             imageCoverUri = data.getData();
             if (imageCoverUri != null) {
                 startCropProfileCover(imageCoverUri);
             }
-        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK  && state == 1) {
+        } else if (requestCode == UCrop.REQUEST_CROP && resultCode == RESULT_OK  && state == 1  && data != null) {
             imageCoverUriResultCrop = UCrop.getOutput(data);
             if (imageCoverUriResultCrop != null) {
                 profileCover.setImageURI(imageCoverUriResultCrop);
